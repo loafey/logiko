@@ -12,8 +12,11 @@
     --color-bg1: 11, 19, 43;
     --color-bg2: 28, 37, 65;
     --color-bg3: 58, 80, 107;
-    --color-fg1: 236, 163, 177;
-    --color-fg2: 87, 199, 241;
+    --color-fg1: 205, 84, 46;
+    --color-fg2: 46, 99, 165;
+    // --color-fg1: 236, 163, 177;
+    // --color-fg2: 87, 199, 241;
+    --color-fg3: 37, 131, 0;
     --app-max-width: 900px;
 
     --app-border-radius: 5px;
@@ -64,7 +67,7 @@ body {
     position: relative;
     display: inline-block;
 
-    box-shadow: 0px 5px 0px 0px rgba(var(--color-fg2), 0.9);
+    box-shadow: 0px 5px 0px 0px rgba(var(--color-fg2), 0.75);
     background-color: rgb(var(--color-fg2));
 
     margin-bottom: 10px;
@@ -78,19 +81,24 @@ body {
     }
 
     .term {
-        box-shadow: 0px 5px 0px 0px rgba(var(--color-fg1), 0.9);
+        box-shadow: 0px 5px 0px 0px rgba(var(--color-fg1), 0.75);
         background-color: rgb(var(--color-fg1));
 
         .term {
-            box-shadow: 0px 5px 0px 0px rgba(var(--color-fg2), 0.9);
+            box-shadow: 0px 5px 0px 0px rgba(var(--color-fg2), 0.75);
             background-color: rgb(var(--color-fg2));
 
             .term {
-                box-shadow: 0px 5px 0px 0px rgba(var(--color-fg1), 0.9);
+                box-shadow: 0px 5px 0px 0px rgba(var(--color-fg1), 0.75);
                 background-color: rgb(var(--color-fg1));
             }
         }
     }
+}
+
+.term-selected {
+    background-color: rgb(var(--color-fg3)) !important;
+    box-shadow: 0px 5px 0px 0px rgba(var(--color-fg3), 0.75) !important;
 }
 
 .term::before {
