@@ -22,6 +22,8 @@
           latest.clippy
           latest.rust-src
           latest.rustfmt
+          targets.wasm32-unknown-unknown.latest.rust-std
+          targets.x86_64-unknown-linux-gnu.latest.rust-std
         ];
 
         fetchy = (naersk.lib.${system}.override {
@@ -54,6 +56,7 @@
           gcc
           nodejs_22
           geckodriver
+          dioxus-cli
         ];
       in
       {

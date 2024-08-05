@@ -1,0 +1,52 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap');
+
+:root {
+    --term-font: "Quicksand", sans-serif;
+    --term-bg1: 0, 0, 255;
+    --term-bg2: 255, 0, 0;
+    --term-padding: 5px 10px 5px 10px;
+    --term-font-size: 2rem;
+    --term-color: white;
+    --term-border-radius: 5px;
+}
+
+.term {
+    font-family: var(--term-font);
+    padding: var(--term-padding);
+    font-size: var(--term-font-size);
+    color: var(--term-color);
+    border-radius: var(--term-border-radius);
+    position: relative;
+    display: inline-block;
+
+    box-shadow: 0px 5px 0px 0px rgba(var(--term-bg1), 0.5);
+    background-color: rgb(var(--term-bg1));
+
+    .term {
+        box-shadow: 0px 5px 0px 0px rgba(var(--term-bg2), 0.5);
+        background-color: rgb(var(--term-bg2));
+
+        .term {
+            box-shadow: 0px 5px 0px 0px rgba(var(--term-bg1), 0.5);
+            background-color: rgb(var(--term-bg1));
+        }
+    }
+}
+
+// .term::before {
+//     position: absolute;
+//     left: 0;
+//     top: 0;
+//     width: calc(100% - 20px);
+//     height: calc(100% - 5px);
+//     content: "";
+//     background-color: inherit;
+//     filter: brightness(80%);
+//     padding: var(--term-padding);
+//     font-size: var(--term-font-size);
+//     border-radius: var(--term-border-radius);
+// }
+
+.term-line {
+    display: flex;
+}

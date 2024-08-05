@@ -4,3 +4,6 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+dioxus = { version = "0.5.6", features = ["web"] }
+dioxus-fullstack = { version = "0.5.0-alpha.2" }
+grass = { git = "https://github.com/connorskees/grass.git", default-features = false, features = ["macro"] }
