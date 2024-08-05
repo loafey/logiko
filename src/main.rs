@@ -42,9 +42,7 @@ fn Term<T: 'static + PartialEq + std::fmt::Display + Clone>(
     } else {
         rsx!(div {
             class: "term",
-            "("
-            {term_gui}
-            ")"
+            "( " {term_gui} " )"
         })
     }
 }

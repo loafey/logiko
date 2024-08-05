@@ -4,7 +4,7 @@
     --term-font: "Quicksand", sans-serif;
     --term-bg1: 0, 0, 255;
     --term-bg2: 255, 0, 0;
-    --term-padding: 5px 10px 5px 10px;
+    --term-padding: 5px 15px 5px 15px;
     --term-font-size: 2rem;
     --term-color: white;
     --term-border-radius: 5px;
@@ -19,18 +19,30 @@
     position: relative;
     display: inline-block;
 
-    box-shadow: 0px 5px 0px 0px rgba(var(--term-bg1), 0.5);
+    box-shadow: 0px 5px 0px 0px rgba(var(--term-bg1), 0.9);
     background-color: rgb(var(--term-bg1));
 
     .term {
-        box-shadow: 0px 5px 0px 0px rgba(var(--term-bg2), 0.5);
+        box-shadow: 0px 5px 0px 0px rgba(var(--term-bg2), 0.9);
         background-color: rgb(var(--term-bg2));
 
         .term {
-            box-shadow: 0px 5px 0px 0px rgba(var(--term-bg1), 0.5);
+            box-shadow: 0px 5px 0px 0px rgba(var(--term-bg1), 0.9);
             background-color: rgb(var(--term-bg1));
         }
     }
+}
+
+.term::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: calc(100% + 5px);
+    border-radius: var(--term-border-radius);
+    background-color: transparent;
+    box-shadow: 0px 0px 1px 2px rgba(0, 0, 0, 0.15);
 }
 
 // .term::before {
