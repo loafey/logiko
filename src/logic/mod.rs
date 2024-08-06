@@ -33,7 +33,7 @@ impl Display for Instruction {
             BottomElim(i) => write!(f, "⊥e {i}"),
             ImplIntro(r) => write!(f, "→i {}-{}", r.start(), r.end()),
             Pbc(r) => write!(f, "PBC {}-{}", r.start(), r.end()),
-            NoInstruction => write!(f, "NA"),
+            NoInstruction => write!(f, ""),
         }
     }
 }
