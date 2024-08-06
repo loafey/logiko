@@ -195,6 +195,15 @@ macro_rules! update_term {
         }
     };
 }
+macro_rules! update_sub {
+    ($index_map_ref:expr, $proof:expr, $exp:expr) => {
+        move |_| {
+            let c = $index_map_ref.read().as_ref().unwrap().clone();
+            $proof.write().proof.recurse(&c, $exp, |_| {}).drop();
+            *$index_map_ref.write() = Some(c);
+        }
+    };
+}
 
 #[component]
 fn Keyboard() -> Element {
@@ -209,7 +218,9 @@ fn Keyboard() -> Element {
     match res {
         SelectType::Term => rsx! {
             button {
-                onclick: update_term!(index_map_ref, proof, |l| *l = Logic::Empty),
+                onclick: update_sub!(index_map_ref, proof, |l| {
+                    Logic::Empty::<usize>;
+                }),
                 "remove"
             }
             button {
