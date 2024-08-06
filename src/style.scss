@@ -7,7 +7,7 @@
     --term-font-size: 2rem;
     --term-color: rgb(var(--color-text));
     --term-border-radius: 5px;
-    --sub-proof-border-left: solid rgb(var(--color-fg1));
+    --sub-proof-border-left: 5px solid rgb(var(--color-fg1));
 
     --text-font: "Quicksand", sans-serif;
     --color-text: 255, 255, 255;
@@ -19,10 +19,13 @@
     // --color-fg1: 236, 163, 177;
     // --color-fg2: 87, 199, 241;
     --color-fg3: 37, 131, 0;
+    --color-fg4: 61, 97, 88;
     --app-max-width: 900px;
 
     --app-border-radius: 5px;
-    --app-border-padding: 5px
+    --app-border-padding: 5px;
+
+    --button-margin: 5px;
 }
 
 * {
@@ -30,7 +33,14 @@
 }
 
 button {
-    color: black;
+    color: white;
+    background-color: rgb(var(--color-fg4));
+    border-radius: var(--term-border-radius);
+    font-size: var(--term-font-size);
+    font-family: var(--term-font);
+    min-width: calc(var(--term-font-size) * 2);
+    border-width: var(--term-border-radius);
+    margin: var(--button-margin);
 }
 
 body {
@@ -133,7 +143,8 @@ body {
     background-color: rgb(var(--color-bg2));
     border-radius: var(--app-border-radius);
     padding: var(--app-border-padding);
-    overflow: auto;
+    display: grid;
+    grid-template-rows: auto 1fr 132px;
 }
 
 // .term::before {
@@ -168,6 +179,27 @@ body {
     width: 100%;
 }
 
+
+.sub-proof-outer {
+    overflow: auto;
+}
+
 .result-line {
     display: flex;
+    justify-content: center;
+}
+
+.keyboard {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+    background-color: rgb(var(--color-bg3));
+
+    .keyboard-inner {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        max-width: 500px;
+    }
 }

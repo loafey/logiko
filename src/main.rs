@@ -155,7 +155,7 @@ fn SubProofComp<T: 'static + PartialEq + std::fmt::Display + Clone>(
                     *index_map_ref.write() = None;
                 }
             },
-            "Remove Sub Proof"
+            "⌫"
         })
     } else {
         rsx!()
@@ -180,7 +180,7 @@ fn SubProofComp<T: 'static + PartialEq + std::fmt::Display + Clone>(
                     }, |_|{});
                     *index_map_ref.write() = Some(c.clone());
                 },
-                "Add Node"
+                "+"
             }
         }
     })
@@ -197,22 +197,22 @@ fn Proof() -> Element {
         unselectable: true,
         other: false,
     });
-    let debug = use_context::<Signal<Option<Vec<usize>>>>();
-
     rsx! (div {
         class: "app-container",
-        "debug index: {debug:?}"
-        SubProofComp {
-            sub_proof: own_proof,
-            index: 0,
-            index_map: Vec::new(),
-            unselectable: false
-        }
-        "Goal:"
+
         div {
             class: "result-line",
-            div { class: "term-rule", "⊢ " }
             {result}
+        }
+
+        div {
+            class: "sub-proof-outer",
+            SubProofComp {
+                sub_proof: own_proof,
+                index: 0,
+                index_map: Vec::new(),
+                unselectable: false
+            }
         }
         Keyboard {}
     })
@@ -239,69 +239,68 @@ fn Keyboard() -> Element {
         |_| SelectType::Term,
     )?;
     match res {
-        SelectType::Term => rsx! {
-            button {
-                onclick: move |_| {
-                    let c = index_map_ref.read().as_ref().unwrap().clone();
-                    proof.write().proof.remove_line(&c);
-                },
-                "remove"
+        SelectType::Term => rsx! (div {
+            class: "keyboard",
+            div {
+                class: "keyboard-inner",
+                button {
+                    onclick: move |_| {
+                        let c = index_map_ref.read().as_ref().unwrap().clone();
+                        proof.write().proof.remove_line(&c);
+                    },
+                    "⌫"
+                }
+                button {
+                    onclick: move |_| {
+                        let index_map = index_map_ref.read();
+                        proof.write().proof.make_sub_proof(index_map.as_ref().unwrap());
+                        drop(index_map);
+                        *index_map_ref.write() = None;
+                    },
+                    "↵"
+                }
+                button {
+                    onclick: update_term!(index_map_ref, proof, |l| *l = Logic::And(
+                        Rc::new(RefCell::new(Logic::Empty)),
+                        Rc::new(RefCell::new(Logic::Empty)),
+                    )),
+                    "∧"
+                }
+                button {
+                    onclick: update_term!(index_map_ref, proof, |l| *l = Logic::Or(
+                        Rc::new(RefCell::new(Logic::Empty)),
+                        Rc::new(RefCell::new(Logic::Empty)),
+                    )),
+                    "∨"
+                }
+                button {
+                    onclick: update_term!(index_map_ref, proof, |l| *l = Logic::Implies(
+                        Rc::new(RefCell::new(Logic::Empty)),
+                        Rc::new(RefCell::new(Logic::Empty)),
+                    )),
+                    "→"
+                }
+                button {
+                    onclick: update_term!(index_map_ref, proof, |l| *l = Logic::Not(
+                        Rc::new(RefCell::new(Logic::Empty)),
+                    )),
+                    "¬"
+                }
+                button {
+                    onclick: update_term!(index_map_ref, proof, |l| *l = Logic::Bottom),
+                    "⊥"
+                }
+                button {
+                    onclick: update_term!(index_map_ref, proof, |l| *l = Logic::Variable("p")),
+                    "p"
+                }
+                button {
+                    onclick: update_term!(index_map_ref, proof, |l| *l = Logic::Variable("q")),
+                    "q"
+                }
             }
-            button {
-                "insert below"
-            }
-            button {
-                onclick: move |_| {
-                    let index_map = index_map_ref.read();
-                    proof.write().proof.make_sub_proof(index_map.as_ref().unwrap());
-                },
-                "sub proof"
-            }
-            button {
-                onclick: update_term!(index_map_ref, proof, |l| *l = Logic::Variable("p")),
-                "p"
-            }
-            button {
-                onclick: update_term!(index_map_ref, proof, |l| *l = Logic::Variable("q")),
-                "q"
-            }
-            button {
-                onclick: update_term!(index_map_ref, proof, |l| *l = Logic::Bottom),
-                "bottom"
-            }
-            button {
-                onclick: update_term!(index_map_ref, proof, |l| *l = Logic::And(
-                    Rc::new(RefCell::new(Logic::Empty)),
-                    Rc::new(RefCell::new(Logic::Empty)),
-                )),
-                "and"
-            }
-            button {
-                onclick: update_term!(index_map_ref, proof, |l| *l = Logic::Or(
-                    Rc::new(RefCell::new(Logic::Empty)),
-                    Rc::new(RefCell::new(Logic::Empty)),
-                )),
-                "or"
-            }
-            button {
-                onclick: update_term!(index_map_ref, proof, |l| *l = Logic::Implies(
-                    Rc::new(RefCell::new(Logic::Empty)),
-                    Rc::new(RefCell::new(Logic::Empty)),
-                )),
-                "impl"
-            }
-            button {
-                onclick: update_term!(index_map_ref, proof, |l| *l = Logic::Not(
-                    Rc::new(RefCell::new(Logic::Empty)),
-                )),
-                "not"
-            }
-        },
-        SelectType::SubProof => rsx! {
-            button {
-                "remove"
-            }
-        },
+        }),
+        SelectType::SubProof => rsx! {},
     }
 }
 

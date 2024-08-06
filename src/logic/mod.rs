@@ -17,9 +17,13 @@ pub enum Instruction {
     Assumption,
     OrIntroLeft(usize),
     OrIntroRight(usize),
+    OrElim(RangeInclusive<usize>, RangeInclusive<usize>),
     NotElim(usize, usize),
     BottomElim(usize),
     ImplIntro(RangeInclusive<usize>),
+    AndIntro(usize, usize),
+    AndElimLeft(usize),
+    AndElimRight(usize),
     Pbc(RangeInclusive<usize>),
     NoInstruction,
 }
@@ -27,8 +31,12 @@ impl Display for Instruction {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Assumption => write!(f, "ass"),
-            OrIntroLeft(i) => write!(f, "∧l {i}"),
-            OrIntroRight(i) => write!(f, "∧r {i}"),
+            OrIntroLeft(i) => write!(f, "∨l {i}"),
+            OrIntroRight(i) => write!(f, "∨r {i}"),
+            OrElim(a, b) => write!(f, "∨e {}-{} {}-{}", a.start(), a.end(), b.start(), b.end()),
+            AndIntro(a, b) => write!(f, "∧i {a} {b}"),
+            AndElimLeft(i) => write!(f, "∧l {i}"),
+            AndElimRight(i) => write!(f, "∧r {i}"),
             NotElim(a, b) => write!(f, "¬e {a} {b}"),
             BottomElim(i) => write!(f, "⊥e {i}"),
             ImplIntro(r) => write!(f, "→i {}-{}", r.start(), r.end()),
@@ -155,7 +163,9 @@ impl<T> SubProof<T> {
     pub fn remove_line(&mut self, index_map: &[usize]) {
         match index_map {
             [i] => {
-                self.0.remove(*i);
+                if *i < self.0.len() {
+                    self.0.remove(*i);
+                }
             }
             [i, xs @ ..] => {
                 if let Some(Sub(s)) = self.0.get_mut(*i) {
