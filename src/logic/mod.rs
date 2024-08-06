@@ -133,6 +133,25 @@ impl<T: Display> Logic<T> {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct SubProof<T>(pub Vec<Line<T>>);
 impl<T> SubProof<T> {
+    pub fn make_sub_proof(&mut self, index_map: &[usize]) {
+        match index_map {
+            [i] => {
+                if let Some(c) = self.0.get_mut(*i) {
+                    *c = Sub(SubProof(vec![Log(
+                        RefCell::new(Empty).into(),
+                        NoInstruction,
+                    )]))
+                }
+            }
+            [i, xs @ ..] => {
+                if let Some(Sub(s)) = self.0.get_mut(*i) {
+                    s.make_sub_proof(xs);
+                }
+            }
+            [] => {}
+        }
+    }
+
     pub fn len(&self) -> usize {
         self.0
             .iter()

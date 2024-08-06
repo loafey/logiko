@@ -1,13 +1,15 @@
 @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap');
 
 :root {
-    --term-font: "Quicksand", sans-serif;
+    --term-font: "Roboto Mono", monospace;
     --term-padding: 5px 15px 5px 15px;
     --term-font-size: 2rem;
     --term-color: rgb(var(--color-text));
     --term-border-radius: 5px;
     --sub-proof-border-left: solid rgb(var(--color-fg1));
 
+    --text-font: "Quicksand", sans-serif;
     --color-text: 255, 255, 255;
     --color-bg1: 11, 19, 43;
     --color-bg2: 28, 37, 65;
@@ -119,9 +121,10 @@ body {
     right: 0;
     display: flex;
     justify-content: center;
-    align-items: center;
-    height: 100%;
+    height: calc(100% - 60px);
     width: 100%;
+    overflow: auto;
+    margin: 30px 0 30px 0;
 }
 
 .app-container {
@@ -129,7 +132,8 @@ body {
     width: 100%;
     background-color: rgb(var(--color-bg2));
     border-radius: var(--app-border-radius);
-    padding: var(--app-border-padding)
+    padding: var(--app-border-padding);
+    overflow: auto;
 }
 
 // .term::before {

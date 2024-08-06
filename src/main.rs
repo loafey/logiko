@@ -109,6 +109,8 @@ fn SubProofComp<T: 'static + PartialEq + std::fmt::Display + Clone>(
     index_map: Vec<usize>,
     unselectable: bool,
 ) -> Element {
+    let mut proof = use_context::<Signal<FitchProof<&'static str>>>();
+    let mut index_map_ref = use_context::<Signal<Option<Vec<usize>>>>();
     let SubProof(lines) = sub_proof;
     let lines = lines.into_iter().enumerate().map(|(i, line)| {
         let mut c = index_map.clone();
@@ -128,10 +130,11 @@ fn SubProofComp<T: 'static + PartialEq + std::fmt::Display + Clone>(
             }
             Line::Log(l, a) => {
                 index += 1;
+                let ind = format!("{index:>2}");
                 rsx! {
                     div {
                         class: "term-line-container",
-                        div { class: "term-rule", "{index}:" }
+                        pre { class: "term-rule", "{ind}:" }
                         div {
                             class: "term-line",
                             Term { term: l, outer: true, index: c, unselectable, other: false }
@@ -149,6 +152,17 @@ fn SubProofComp<T: 'static + PartialEq + std::fmt::Display + Clone>(
             {line}
         }
         button {
+            onclick: move |_| {
+                let mut c = index_map.clone();
+                c.push(index);
+                proof.write().proof.recurse(&index_map, |s| {
+                    s.0.push(
+                        Line::Log(RefCell::new(Logic::Empty).into(),
+                        logic::Instruction::NoInstruction
+                    ));
+                }, |_|{});
+                *index_map_ref.write() = Some(c.clone());
+            },
             "Add Node"
         }
     })
@@ -227,7 +241,11 @@ fn Keyboard() -> Element {
                 "insert below"
             }
             button {
-                "insert sub proof below"
+                onclick: move |_| {
+                    let index_map = index_map_ref.read();
+                    proof.write().proof.make_sub_proof(index_map.as_ref().unwrap());
+                },
+                "sub proof"
             }
             button {
                 onclick: update_term!(index_map_ref, proof, |l| *l = Logic::Variable("p")),
@@ -236,6 +254,10 @@ fn Keyboard() -> Element {
             button {
                 onclick: update_term!(index_map_ref, proof, |l| *l = Logic::Variable("q")),
                 "q"
+            }
+            button {
+                onclick: update_term!(index_map_ref, proof, |l| *l = Logic::Bottom),
+                "bottom"
             }
             button {
                 onclick: update_term!(index_map_ref, proof, |l| *l = Logic::And(
@@ -275,7 +297,7 @@ fn Keyboard() -> Element {
 
 fn app() -> Element {
     use_context_provider(|| Signal::new(empty()));
-    use_context_provider::<Signal<Option<Vec<usize>>>>(|| Signal::new(None));
+    use_context_provider::<Signal<Option<Vec<usize>>>>(|| Signal::new(Some(vec![0])));
     use_context_provider(|| Signal::new(0usize));
     let style = grass::include!("src/style.scss");
 
