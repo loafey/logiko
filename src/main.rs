@@ -148,9 +148,12 @@ fn SubProofComp<T: 'static + PartialEq + std::fmt::Display + Clone>(
 
     let remove_button = if !index_map.is_empty() {
         rsx!(button {
-            onclick: move |_| {
-                let index_map = index_map_ref.read();
-                proof.write().proof.remove_sub_proof(index_map.as_ref().unwrap());
+            onclick: {
+                let index_map = index_map.clone();
+                move |_| {
+                    proof.write().proof.remove_sub_proof(&index_map);
+                    *index_map_ref.write() = None;
+                }
             },
             "Remove Sub Proof"
         })
