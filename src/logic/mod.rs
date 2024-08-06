@@ -152,14 +152,14 @@ impl<T> SubProof<T> {
         }
     }
 
-    pub fn remove_sub_proof(&mut self, index_map: &[usize]) {
+    pub fn remove_line(&mut self, index_map: &[usize]) {
         match index_map {
             [i] => {
                 self.0.remove(*i);
             }
             [i, xs @ ..] => {
                 if let Some(Sub(s)) = self.0.get_mut(*i) {
-                    s.remove_sub_proof(xs);
+                    s.remove_line(xs);
                 }
             }
             [] => {}

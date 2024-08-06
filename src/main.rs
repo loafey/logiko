@@ -151,7 +151,7 @@ fn SubProofComp<T: 'static + PartialEq + std::fmt::Display + Clone>(
             onclick: {
                 let index_map = index_map.clone();
                 move |_| {
-                    proof.write().proof.remove_sub_proof(&index_map);
+                    proof.write().proof.remove_line(&index_map);
                     *index_map_ref.write() = None;
                 }
             },
@@ -227,15 +227,6 @@ macro_rules! update_term {
         }
     };
 }
-macro_rules! update_sub {
-    ($index_map_ref:expr, $proof:expr, $exp:expr) => {
-        move |_| {
-            let c = $index_map_ref.read().as_ref().unwrap().clone();
-            $proof.write().proof.recurse(&c, $exp, |_| {}).drop();
-            *$index_map_ref.write() = Some(c);
-        }
-    };
-}
 
 #[component]
 fn Keyboard() -> Element {
@@ -250,9 +241,10 @@ fn Keyboard() -> Element {
     match res {
         SelectType::Term => rsx! {
             button {
-                onclick: update_sub!(index_map_ref, proof, |l| {
-                    Logic::Empty::<usize>;
-                }),
+                onclick: move |_| {
+                    let c = index_map_ref.read().as_ref().unwrap().clone();
+                    proof.write().proof.remove_line(&c);
+                },
                 "remove"
             }
             button {
