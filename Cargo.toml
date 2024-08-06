@@ -6,4 +6,6 @@ edition = "2021"
 [dependencies]
 dioxus = { version = "0.5.6", features = ["web"] }
 dioxus-fullstack = { version = "0.5.0-alpha.2" }
+dioxus-logger = "0.5.1"
 grass = { git = "https://github.com/connorskees/grass.git", default-features = false, features = ["macro"] }
+log = "0.4.22"

@@ -21,6 +21,7 @@ pub enum Instruction {
     BottomElim(usize),
     ImplIntro(RangeInclusive<usize>),
     Pbc(RangeInclusive<usize>),
+    NoInstruction,
 }
 impl Display for Instruction {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -32,6 +33,7 @@ impl Display for Instruction {
             BottomElim(i) => write!(f, "⊥e {i}"),
             ImplIntro(r) => write!(f, "→i {}-{}", r.start(), r.end()),
             Pbc(r) => write!(f, "PBC {}-{}", r.start(), r.end()),
+            NoInstruction => write!(f, "NA"),
         }
     }
 }
@@ -40,6 +42,12 @@ impl Display for Instruction {
 pub enum Line<T> {
     Sub(SubProof<T>),
     Log(Ptr<Logic<T>>, Instruction),
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SelectType {
+    Term,
+    SubProof,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -52,6 +60,39 @@ pub enum Logic<T> {
     Or(Ptr<Logic<T>>, Ptr<Logic<T>>),
     Bottom,
     Empty,
+}
+impl<T> Logic<T> {
+    pub fn get(&self, index: usize) -> Option<Ptr<Self>> {
+        match self {
+            Variable(_) => None,
+            And(a, _) if index == 0 => Some(a.clone()),
+            And(_, a) if index == 1 => Some(a.clone()),
+            And(_, _) => None,
+            Implies(a, _) if index == 0 => Some(a.clone()),
+            Implies(_, a) if index == 1 => Some(a.clone()),
+            Implies(_, _) => None,
+            Equivalent(a, _) if index == 0 => Some(a.clone()),
+            Equivalent(_, a) if index == 1 => Some(a.clone()),
+            Equivalent(_, _) => None,
+            Not(a) => Some(a.clone()),
+            Or(a, _) if index == 0 => Some(a.clone()),
+            Or(_, a) if index == 1 => Some(a.clone()),
+            Or(_, _) => None,
+            Bottom => None,
+            Empty => None,
+        }
+    }
+}
+impl<T> Logic<T> {
+    fn recurse<R>(&mut self, index_map: &[usize], term_func: fn(&mut Logic<T>) -> R) -> Option<R> {
+        let Some(index) = index_map.first().copied() else {
+            return Some(term_func(self));
+        };
+
+        let child = self.get(index)?;
+        let res = child.borrow_mut().recurse(&index_map[1..], term_func)?;
+        Some(res)
+    }
 }
 impl<T: Display> Logic<T> {
     fn display(&self, outer: bool) -> String {
@@ -101,6 +142,23 @@ impl<T> SubProof<T> {
             })
             .sum()
     }
+
+    pub fn recurse<R>(
+        &mut self,
+        index_map: &[usize],
+        sub_func: fn(&mut SubProof<T>) -> R,
+        term_func: fn(&mut Logic<T>) -> R,
+    ) -> Option<R> {
+        let Some(index) = index_map.first().copied() else {
+            return Some(sub_func(self));
+        };
+        let item = self.0.get_mut(index)?;
+
+        match item {
+            Line::Sub(s) => s.recurse(&index_map[1..], sub_func, term_func),
+            Line::Log(l, _) => l.borrow_mut().recurse(&index_map[1..], term_func),
+        }
+    }
 }
 impl<T: Display> SubProof<T> {
     pub fn display(&self, index: &mut usize, depth: usize) -> String {
@@ -149,6 +207,22 @@ impl<T: Display> Display for FitchProof<T> {
         write!(f, "{proof}")?;
         writeln!(f, "{}", "─".repeat(len))?;
         write!(f, "{result}")
+    }
+}
+
+pub fn empty() -> FitchProof<&'static str> {
+    FitchProof {
+        proof: SubProof(vec![Log(RefCell::new(Empty).into(), NoInstruction)]),
+        prepositions: Vec::new(),
+        result: RefCell::new(Or(
+            RefCell::new(Variable("p")).into(),
+            RefCell::new(Implies(
+                RefCell::new(Variable("p")).into(),
+                RefCell::new(Variable("q")).into(),
+            ))
+            .into(),
+        ))
+        .into(), // p ∨ (p → q)
     }
 }
 
