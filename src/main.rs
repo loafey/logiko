@@ -146,24 +146,39 @@ fn SubProofComp<T: 'static + PartialEq + std::fmt::Display + Clone>(
         }
     });
 
+    let remove_button = if !index_map.is_empty() {
+        rsx!(button {
+            onclick: move |_| {
+                let index_map = index_map_ref.read();
+                proof.write().proof.remove_sub_proof(index_map.as_ref().unwrap());
+            },
+            "Remove Sub Proof"
+        })
+    } else {
+        rsx!()
+    };
+
     rsx!(div {
         class: "sub-proof",
         for line in lines {
             {line}
         }
-        button {
-            onclick: move |_| {
-                let mut c = index_map.clone();
-                c.push(index);
-                proof.write().proof.recurse(&index_map, |s| {
-                    s.0.push(
-                        Line::Log(RefCell::new(Logic::Empty).into(),
-                        logic::Instruction::NoInstruction
-                    ));
-                }, |_|{});
-                *index_map_ref.write() = Some(c.clone());
-            },
-            "Add Node"
+        div {
+            {remove_button}
+            button {
+                onclick: move |_| {
+                    let mut c = index_map.clone();
+                    c.push(index);
+                    proof.write().proof.recurse(&index_map, |s| {
+                        s.0.push(
+                            Line::Log(RefCell::new(Logic::Empty).into(),
+                            logic::Instruction::NoInstruction
+                        ));
+                    }, |_|{});
+                    *index_map_ref.write() = Some(c.clone());
+                },
+                "Add Node"
+            }
         }
     })
 }
