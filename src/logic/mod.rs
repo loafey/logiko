@@ -25,6 +25,7 @@ pub enum Instruction {
     AndElimRight(usize),
     Pbc(RangeInclusive<usize>),
     Copy(usize),
+    Lem,
     Invalid,
 }
 impl Display for Instruction {
@@ -43,6 +44,7 @@ impl Display for Instruction {
             Pbc(r) => write!(f, "PBC {}-{}", r.start(), r.end()),
             Copy(i) => write!(f, "copy {i}"),
             Invalid => write!(f, "🛑"),
+            Lem => write!(f, "LEM"),
         }
     }
 }

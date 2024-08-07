@@ -144,19 +144,23 @@ impl<T: Clone + Hash + Eq + Debug> SubProof<T> {
                             }
                             // Or introduction
                             Logic::Or(a, b) => {
-                                *t = Some(
-                                    if let Some((p, _)) =
-                                        find_symbol(&(**a).clone().into(), &None, &stack)
-                                    {
-                                        Instruction::OrIntroLeft(p.index)
-                                    } else if let Some((p, _)) =
-                                        find_symbol(&(**b).clone().into(), &None, &stack)
-                                    {
-                                        Instruction::OrIntroRight(p.index)
-                                    } else {
-                                        Instruction::Invalid
-                                    },
-                                );
+                                if **a == Logic::Not((*b).clone()) {
+                                    *t = Some(Instruction::Lem);
+                                } else {
+                                    *t = Some(
+                                        if let Some((p, _)) =
+                                            find_symbol(&(**a).clone().into(), &None, &stack)
+                                        {
+                                            Instruction::OrIntroLeft(p.index)
+                                        } else if let Some((p, _)) =
+                                            find_symbol(&(**b).clone().into(), &None, &stack)
+                                        {
+                                            Instruction::OrIntroRight(p.index)
+                                        } else {
+                                            Instruction::Invalid
+                                        },
+                                    );
+                                }
                             }
                             // Not elimination
                             Logic::Bottom => {
