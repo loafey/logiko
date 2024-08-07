@@ -2,6 +2,7 @@
 #[macro_use]
 extern crate log;
 
+use chrono::DateTime;
 use dioxus::prelude::*;
 mod logic;
 use logic::{empty, example_proof, FitchProof, Line, Logic, Ptr, SelectType, SubProof};
@@ -9,11 +10,11 @@ use util::Droppable;
 mod util;
 
 fn main() {
-    let data = std::fs::read_to_string("data.json").unwrap();
-    let data = serde_json::from_str::<Vec<FitchProof<&str>>>(&data).unwrap();
-    for proof in data {
-        println!("{proof}");
-    }
+    // let data = std::fs::read_to_string("data.json").unwrap();
+    // let data = serde_json::from_str::<Vec<FitchProof<&str>>>(&data).unwrap();
+    // for proof in data {
+    //     println!("{proof}");
+    // }
 
     // let mut proof = example_proof();
     // println!(" -- Input: --");
@@ -24,8 +25,8 @@ fn main() {
     // );
     // println!("{proof}");
 
-    // dioxus_logger::init(dioxus_logger::tracing::Level::INFO).expect("failed to init logger");
-    // launch(app);
+    dioxus_logger::init(dioxus_logger::tracing::Level::INFO).expect("failed to init logger");
+    launch(app);
 }
 
 #[component]
@@ -316,7 +317,18 @@ fn Keyboard() -> Element {
 
 #[allow(unused)]
 fn app() -> Element {
-    use_context_provider(|| Signal::new(empty()));
+    let mut sig = use_context_provider(|| Signal::new(empty()));
+    use_coroutine(move |_: UnboundedReceiver<()>| async move {
+        let data = include_str!("../data.json");
+        let json = serde_json::from_str::<Vec<FitchProof<&str>>>(data).unwrap();
+
+        let date_str = "Tue, 1 Jul 2003 10:52:37 +0200";
+        let datetime = DateTime::parse_from_rfc2822(date_str).unwrap();
+        let td = chrono::Local::now()
+            .signed_duration_since(datetime)
+            .num_days();
+        *sig.write() = json[(td as usize) % json.len()].clone();
+    });
     use_context_provider::<Signal<Option<Vec<usize>>>>(|| Signal::new(Some(vec![0])));
     use_context_provider(|| Signal::new(0usize));
     let style = grass::include!("src/style.scss");
