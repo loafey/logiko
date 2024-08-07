@@ -46,7 +46,7 @@ fn Term<T: 'static + PartialEq + std::fmt::Display + Clone>(
         c
     };
 
-    let term_gui = match &*term.borrow() {
+    let term_gui = match &*term {
         Logic::Variable(v) => rsx!("{v}"),
         Logic::And(a, b) => rsx!(
             Term {term: a.clone(), outer: false, index: index0, unselectable, other: !other}
@@ -64,12 +64,7 @@ fn Term<T: 'static + PartialEq + std::fmt::Display + Clone>(
             Term {term: b.clone(), outer: false, index: index1, unselectable, other: !other}
         ),
         Logic::Equivalent(_, _) => rsx!("Equivalent"),
-        Logic::Not(t)
-            if matches!(
-                &*t.borrow(),
-                Logic::Variable(_) | Logic::Not(_) | Logic::Empty
-            ) =>
-        {
+        Logic::Not(t) if matches!(&**t, Logic::Variable(_) | Logic::Not(_) | Logic::Empty) => {
             rsx!("¬ " Term { term: t.clone(), outer: true, index: index0, unselectable, other: !other })
         }
         Logic::Not(t) => {
@@ -87,7 +82,7 @@ fn Term<T: 'static + PartialEq + std::fmt::Display + Clone>(
         }
     };
 
-    if matches!(&*term.borrow(), Logic::Variable(_)) || outer {
+    if matches!(&*term, Logic::Variable(_)) || outer {
         rsx!(div {
             onclick: on_click,
             class: class,
@@ -174,9 +169,9 @@ fn SubProofComp<T: 'static + PartialEq + std::fmt::Display + Clone>(
                     c.push(index);
                     proof.write().proof.recurse(&index_map, |s| {
                         s.0.push(
-                            Line::Log(RefCell::new(Logic::Empty).into(),
-                            logic::Instruction::NoInstruction
-                        ));
+                            Line::Log(Logic::Empty.into(), logic::Instruction::NoInstruction)
+                        )
+                        ;
                     }, |_|{});
                     *index_map_ref.write() = Some(c.clone());
                 },
@@ -261,28 +256,28 @@ fn Keyboard() -> Element {
                 }
                 button {
                     onclick: update_term!(index_map_ref, proof, |l| *l = Logic::And(
-                        Rc::new(RefCell::new(Logic::Empty)),
-                        Rc::new(RefCell::new(Logic::Empty)),
+                        Logic::Empty.into(),
+                        Logic::Empty.into(),
                     )),
                     "∧"
                 }
                 button {
                     onclick: update_term!(index_map_ref, proof, |l| *l = Logic::Or(
-                        Rc::new(RefCell::new(Logic::Empty)),
-                        Rc::new(RefCell::new(Logic::Empty)),
+                        Logic::Empty.into(),
+                        Logic::Empty.into(),
                     )),
                     "∨"
                 }
                 button {
                     onclick: update_term!(index_map_ref, proof, |l| *l = Logic::Implies(
-                        Rc::new(RefCell::new(Logic::Empty)),
-                        Rc::new(RefCell::new(Logic::Empty)),
+                        Logic::Empty.into(),
+                        Logic::Empty.into(),
                     )),
                     "→"
                 }
                 button {
                     onclick: update_term!(index_map_ref, proof, |l| *l = Logic::Not(
-                        Rc::new(RefCell::new(Logic::Empty)),
+                        Logic::Empty.into(),
                     )),
                     "¬"
                 }
