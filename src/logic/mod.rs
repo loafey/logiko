@@ -9,6 +9,8 @@ use Instruction::*;
 use Line::*;
 use Logic::*;
 
+mod verify;
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Instruction {
     Assumption,
@@ -22,6 +24,7 @@ pub enum Instruction {
     AndElimLeft(usize),
     AndElimRight(usize),
     Pbc(RangeInclusive<usize>),
+    Copy(usize),
     Invalid,
 }
 impl Display for Instruction {
@@ -38,6 +41,7 @@ impl Display for Instruction {
             BottomElim(i) => write!(f, "⊥e {i}"),
             ImplIntro(r) => write!(f, "→i {}-{}", r.start(), r.end()),
             Pbc(r) => write!(f, "PBC {}-{}", r.start(), r.end()),
+            Copy(i) => write!(f, "copy {i}"),
             Invalid => write!(f, "🛑"),
         }
     }
@@ -55,7 +59,7 @@ pub enum SelectType {
     SubProof,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Hash, Eq)]
 pub enum Logic<T> {
     Variable(T),
     And(Ptr<Logic<T>>, Ptr<Logic<T>>),
@@ -66,6 +70,7 @@ pub enum Logic<T> {
     Bottom,
     Empty,
 }
+
 impl<T> Logic<T> {
     pub fn get_mut(&mut self, index: usize) -> Option<&mut Self> {
         match self {
@@ -213,13 +218,8 @@ impl<T: Display> SubProof<T> {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct FitchProof<T> {
     pub proof: SubProof<T>,
-    pub prepositions: Vec<Ptr<Logic<T>>>,
+    pub prepositions: Vec<Logic<T>>,
     pub result: Ptr<Logic<T>>,
-}
-impl<T> FitchProof<T> {
-    pub fn verify(&mut self) -> bool {
-        false
-    }
 }
 impl<T: Display> Display for FitchProof<T> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {

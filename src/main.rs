@@ -11,7 +11,7 @@ mod util;
 fn main() {
     let mut proof = example_proof();
     println!("{proof}");
-    proof.verify();
+    println!("Proof is valid? {}", proof.verify());
     println!("{proof}");
 
     // dioxus_logger::init(dioxus_logger::tracing::Level::INFO).expect("failed to init logger");
