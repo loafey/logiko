@@ -1,16 +1,21 @@
+#[allow(unused_imports)]
 #[macro_use]
 extern crate log;
 
 use dioxus::prelude::*;
-use std::{cell::RefCell, rc::Rc};
 mod logic;
 use logic::{empty, example_proof, FitchProof, Line, Logic, Ptr, SelectType, SubProof};
 use util::Droppable;
 mod util;
 
 fn main() {
-    dioxus_logger::init(dioxus_logger::tracing::Level::INFO).expect("failed to init logger");
-    launch(app);
+    let mut proof = example_proof();
+    println!("{proof}");
+    proof.verify();
+    println!("{proof}");
+
+    // dioxus_logger::init(dioxus_logger::tracing::Level::INFO).expect("failed to init logger");
+    // launch(app);
 }
 
 #[component]
@@ -126,6 +131,7 @@ fn SubProofComp<T: 'static + PartialEq + std::fmt::Display + Clone>(
             Line::Log(l, a) => {
                 index += 1;
                 let ind = format!("{index:>2}");
+                let a = a.map(|s| format!("{s}")).unwrap_or_default();
                 rsx! {
                     div {
                         class: "term-line-container",
@@ -169,7 +175,7 @@ fn SubProofComp<T: 'static + PartialEq + std::fmt::Display + Clone>(
                     c.push(index);
                     proof.write().proof.recurse(&index_map, |s| {
                         s.0.push(
-                            Line::Log(Logic::Empty.into(), logic::Instruction::NoInstruction)
+                            Line::Log(Logic::Empty.into(), None)
                         )
                         ;
                     }, |_|{});
@@ -299,6 +305,7 @@ fn Keyboard() -> Element {
     }
 }
 
+#[allow(unused)]
 fn app() -> Element {
     use_context_provider(|| Signal::new(empty()));
     use_context_provider::<Signal<Option<Vec<usize>>>>(|| Signal::new(Some(vec![0])));

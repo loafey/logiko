@@ -1,5 +1,4 @@
 use std::{
-    cell::RefCell,
     fmt::{Display, Write},
     ops::RangeInclusive,
 };
@@ -9,7 +8,6 @@ pub type Ptr<T> = Box<T>;
 use Instruction::*;
 use Line::*;
 use Logic::*;
-type Propositional = ();
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Instruction {
@@ -24,7 +22,7 @@ pub enum Instruction {
     AndElimLeft(usize),
     AndElimRight(usize),
     Pbc(RangeInclusive<usize>),
-    NoInstruction,
+    Invalid,
 }
 impl Display for Instruction {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -40,7 +38,7 @@ impl Display for Instruction {
             BottomElim(i) => write!(f, "⊥e {i}"),
             ImplIntro(r) => write!(f, "→i {}-{}", r.start(), r.end()),
             Pbc(r) => write!(f, "PBC {}-{}", r.start(), r.end()),
-            NoInstruction => write!(f, ""),
+            Invalid => write!(f, "🛑"),
         }
     }
 }
@@ -48,7 +46,7 @@ impl Display for Instruction {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Line<T> {
     Sub(SubProof<T>),
-    Log(Ptr<Logic<T>>, Instruction),
+    Log(Ptr<Logic<T>>, Option<Instruction>),
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -128,7 +126,7 @@ impl<T> SubProof<T> {
         match index_map {
             [i] => {
                 if let Some(c) = self.0.get_mut(*i) {
-                    *c = Sub(SubProof(vec![Log(Empty.into(), NoInstruction)]))
+                    *c = Sub(SubProof(vec![Log(Empty.into(), None)]))
                 }
             }
             [i, xs @ ..] => {
@@ -196,7 +194,13 @@ impl<T: Display> SubProof<T> {
                     let l = format!("{index:>3}: {}{}", "│ ".repeat(depth), l.display(true));
                     let len = l.chars().count();
                     let space = if len < 32 { 32 - len } else { 64 - len };
-                    writeln!(&mut new_line, "{l}{}{inst}", " ".repeat(space)).unwrap();
+                    writeln!(
+                        &mut new_line,
+                        "{l}{}{}",
+                        " ".repeat(space),
+                        inst.clone().map(|s| format!("{s}")).unwrap_or_default()
+                    )
+                    .unwrap();
                     *index += 1;
                 }
             }
@@ -211,6 +215,11 @@ pub struct FitchProof<T> {
     pub proof: SubProof<T>,
     pub prepositions: Vec<Ptr<Logic<T>>>,
     pub result: Ptr<Logic<T>>,
+}
+impl<T> FitchProof<T> {
+    pub fn verify(&mut self) -> bool {
+        false
+    }
 }
 impl<T: Display> Display for FitchProof<T> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -231,7 +240,7 @@ impl<T: Display> Display for FitchProof<T> {
 
 pub fn empty() -> FitchProof<&'static str> {
     FitchProof {
-        proof: SubProof(vec![Log(Empty.into(), NoInstruction)]),
+        proof: SubProof(vec![Log(Empty.into(), None)]),
         prepositions: Vec::new(),
         result: Or(
             Variable("p").into(),
@@ -252,11 +261,16 @@ pub fn example_proof() -> FitchProof<&'static str> {
                 )
                 .into())
                 .into(),
-                Assumption,
+                None,
+                // Assumption,
             ),
             Sub(SubProof(vec![
                 // 2. | | p              assumption
-                Log(Variable("p").into(), Assumption),
+                Log(
+                    Variable("p").into(),
+                    None,
+                    // Assumption
+                ),
                 // 3. | | p ∨ (p → q)    ∨i1 2
                 Log(
                     (Or(
@@ -264,17 +278,27 @@ pub fn example_proof() -> FitchProof<&'static str> {
                         (Implies((Variable("p")).into(), (Variable("q")).into())).into(),
                     ))
                     .into(),
-                    OrIntroLeft(2),
+                    None,
+                    // OrIntroLeft(2),
                 ),
                 // 4. | | ⊥              ¬e (1,3)
-                Log((Bottom).into(), NotElim(1, 3)),
+                Log(
+                    (Bottom).into(),
+                    None,
+                    // NotElim(1, 3)
+                ),
                 // 5. | | q              ⊥e 4
-                Log((Variable("q")).into(), BottomElim(4)),
+                Log(
+                    (Variable("q")).into(),
+                    None,
+                    // BottomElim(4)
+                ),
             ])),
             // 6. | p → q          →i (2–5)
             Log(
                 (Implies((Variable("p")).into(), (Variable("q")).into())).into(),
-                ImplIntro(2..=5),
+                None,
+                // ImplIntro(2..=5),
             ),
             // 7. | p ∨ (p → q)    ∨i2 6
             Log(
@@ -283,10 +307,15 @@ pub fn example_proof() -> FitchProof<&'static str> {
                     (Implies((Variable("p")).into(), (Variable("q")).into())).into(),
                 ))
                 .into(),
-                OrIntroRight(6),
+                None,
+                // OrIntroRight(6),
             ),
             // 8. | ⊥              ¬e (1,7)
-            Log((Bottom).into(), NotElim(1, 7)),
+            Log(
+                (Bottom).into(),
+                // NotElim(1, 7)
+                None,
+            ),
         ])),
         // 9. p ∨ (p → q)    PBC (1–8)
         Log(
@@ -295,7 +324,8 @@ pub fn example_proof() -> FitchProof<&'static str> {
                 (Implies((Variable("p")).into(), (Variable("q")).into())).into(),
             ))
             .into(),
-            Pbc(1..=8),
+            // Pbc(1..=8),
+            None,
         ),
     ];
     FitchProof {
