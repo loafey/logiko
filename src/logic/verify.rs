@@ -1,5 +1,7 @@
 use std::{collections::HashMap, fmt::Debug, hash::Hash};
 
+use crate::util::Droppable;
+
 use super::{FitchProof, Instruction, Line, Logic, SubProof};
 
 #[derive(Debug, Eq, Clone)]
@@ -221,7 +223,21 @@ impl<T: Clone + Hash + Eq + Debug> SubProof<T> {
 }
 impl<T: Clone + Hash + Eq + Debug> FitchProof<T> {
     pub fn verify(&mut self) -> bool {
-        self.proof.verify(&mut 0, vec![State::default()]);
+        let mut state = State::default();
+        self.prepositions.iter().enumerate().for_each(|(i, l)| {
+            state
+                .symbols
+                .insert(
+                    Position {
+                        logic: l.clone(),
+                        index: i + 1,
+                    },
+                    None,
+                )
+                .drop()
+        });
+
+        self.proof.verify(&mut 0, vec![state]);
         !self.proof.has_invalid()
             && self
                 .proof
