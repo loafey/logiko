@@ -5,7 +5,7 @@ extern crate log;
 use chrono::DateTime;
 use dioxus::prelude::*;
 mod logic;
-use logic::{empty, example_proof, FitchProof, Line, Logic, Ptr, SelectType, SubProof};
+use logic::{empty, FitchProof, Line, Logic, Ptr, SelectType, SubProof};
 use util::Droppable;
 mod util;
 
@@ -200,6 +200,25 @@ fn SubProofComp<T: 'static + PartialEq + std::fmt::Display + Clone>(
 #[component]
 fn Proof() -> Element {
     let proof = use_context::<Signal<FitchProof<&'static str>>>();
+    let start_time = use_context::<DateTime<chrono::Local>>();
+    let mut elapsed = use_signal(|| {
+        chrono::Local::now()
+            .signed_duration_since(start_time)
+            .to_std()
+            .unwrap_or_default()
+    });
+    use_coroutine::<(), _, _>(move |_: UnboundedReceiver<_>| async move {
+        loop {
+            elapsed.set(
+                chrono::Local::now()
+                    .signed_duration_since(start_time)
+                    .to_std()
+                    .unwrap_or_default(),
+            );
+            wasmtimer::tokio::sleep(std::time::Duration::from_secs(1)).await
+        }
+    });
+
     let own_proof = proof.read().proof.clone();
     let result = rsx!(Term {
         term: proof.read().result.clone(),
@@ -208,8 +227,15 @@ fn Proof() -> Element {
         unselectable: true,
         other: false,
     });
+    let pres = proof.read().prepositions.clone();
+    let pres_len = pres.len();
     rsx! (div {
         class: "app-container",
+
+        div {
+            class: "title",
+            "Puzzle: {day_since_start()}, {elapsed.read().as_secs()}s"
+        }
 
         div {
             class: "result-line",
@@ -218,11 +244,22 @@ fn Proof() -> Element {
 
         div {
             class: "sub-proof-outer",
+            for (ind, l) in pres.into_iter().enumerate() {
+                div {
+                    class: "term-line-container",
+                    pre { class: "term-rule", style: "padding-left: 20px", "{ind + 1}:" }
+                    div {
+                        class: "term-line",
+                        Term { term: Box::new(l), outer: true, index: Vec::new(), unselectable: true, other: false }
+                        div { class: "term-rule", "{logic::Instruction::Premise}" }
+                    }
+                }
+            }
             SubProofComp {
                 sub_proof: own_proof,
-                index: 0,
+                index: pres_len,
                 index_map: Vec::new(),
-                unselectable: false
+                unselectable: false,
             }
         }
         Keyboard {}
@@ -249,6 +286,9 @@ fn Keyboard() -> Element {
         |_| SelectType::SubProof,
         |_| SelectType::Term,
     )?;
+    let check = move |_: Event<MouseData>| {
+        proof.write().verify();
+    };
     match res {
         SelectType::Term => rsx! (div {
             class: "keyboard",
@@ -309,10 +349,27 @@ fn Keyboard() -> Element {
                     onclick: update_term!(index_map_ref, proof, |l| *l = Logic::Variable("q")),
                     "q"
                 }
+                button {
+                    onclick: update_term!(index_map_ref, proof, |l| *l = Logic::Variable("r")),
+                    "r"
+                }
+                button {
+                    onclick: update_term!(index_map_ref, proof, |l| *l = Logic::Variable("s")),
+                    "s"
+                }
+                button { onclick: check, "🔎" }
             }
         }),
-        SelectType::SubProof => rsx! {},
+        SelectType::SubProof => rsx! { button { onclick: check, "🔎" }},
     }
+}
+
+fn day_since_start() -> usize {
+    let date_str = "Wed, 7 Aug 2024 10:52:37 +0200";
+    let datetime = DateTime::parse_from_rfc2822(date_str).unwrap();
+    chrono::Local::now()
+        .signed_duration_since(datetime)
+        .num_days() as usize
 }
 
 #[allow(unused)]
@@ -321,16 +378,12 @@ fn app() -> Element {
     use_coroutine(move |_: UnboundedReceiver<()>| async move {
         let data = include_str!("../data.json");
         let json = serde_json::from_str::<Vec<FitchProof<&str>>>(data).unwrap();
-
-        let date_str = "Tue, 1 Jul 2003 10:52:37 +0200";
-        let datetime = DateTime::parse_from_rfc2822(date_str).unwrap();
-        let td = chrono::Local::now()
-            .signed_duration_since(datetime)
-            .num_days();
-        *sig.write() = json[(td as usize) % json.len()].clone();
+        // *sig.write() = json[0].clone();
+        *sig.write() = json[day_since_start() % json.len()].clone();
     });
     use_context_provider::<Signal<Option<Vec<usize>>>>(|| Signal::new(Some(vec![0])));
     use_context_provider(|| Signal::new(0usize));
+    use_context_provider(chrono::Local::now);
     let style = grass::include!("src/style.scss");
 
     rsx! {

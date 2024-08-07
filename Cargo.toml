@@ -12,3 +12,4 @@ grass = { git = "https://github.com/connorskees/grass.git", default-features = f
 log = "0.4.22"
 serde = { version = "1.0.204", features = ["derive"] }
 serde_json = "1.0.122"
+wasmtimer = "0.2.0"

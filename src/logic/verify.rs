@@ -42,7 +42,7 @@ impl<T> State<T> {
 impl<T> Default for State<T> {
     fn default() -> Self {
         Self {
-            can_assume: true,
+            can_assume: false,
             symbols: HashMap::new(),
         }
     }
