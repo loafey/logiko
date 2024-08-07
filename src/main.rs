@@ -68,7 +68,6 @@ fn Term<T: 'static + PartialEq + std::fmt::Display + Clone>(
             " → "
             Term {term: b.clone(), outer: false, index: index1, unselectable, other: !other}
         ),
-        Logic::Equivalent(_, _) => rsx!("Equivalent"),
         Logic::Not(t) if matches!(&**t, Logic::Variable(_) | Logic::Not(_) | Logic::Empty) => {
             rsx!("¬ " Term { term: t.clone(), outer: true, index: index0, unselectable, other: !other })
         }
