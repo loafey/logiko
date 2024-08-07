@@ -82,20 +82,14 @@
             }
         ],
         "result": {
-            "Not": {
-                "And": [
-                    {
-                        "Not": {
-                            "Variable": "p"
-                        }
-                    },
-                    {
-                        "Not": {
-                            "Variable": "q"
-                        }
-                    }
-                ]
-            }
+            "Or": [
+                {
+                    "Variable": "p"
+                },
+                {
+                    "Variable": "q"
+                }
+            ]
         }
     },
     {
