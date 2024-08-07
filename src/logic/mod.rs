@@ -27,6 +27,7 @@ pub enum Instruction {
     Pbc(RangeInclusive<usize>),
     Copy(usize),
     Lem,
+    Premise,
     Invalid,
 }
 impl Display for Instruction {
@@ -46,6 +47,7 @@ impl Display for Instruction {
             Copy(i) => write!(f, "copy {i}"),
             Invalid => write!(f, "🛑"),
             Lem => write!(f, "LEM"),
+            Premise => write!(f, "pre"),
         }
     }
 }
@@ -104,7 +106,7 @@ impl<T> Logic<T> {
     }
 }
 impl<T: Display> Logic<T> {
-    fn display(&self, outer: bool) -> String {
+    pub fn display(&self, outer: bool) -> String {
         let res = match self {
             Variable(v) => format!("{v}"),
             And(a, b) => format!("{} ∧ {}", a.display(false), b.display(false)),
@@ -124,6 +126,11 @@ impl<T: Display> Logic<T> {
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct SubProof<T>(pub Vec<Line<T>>);
+impl<T> Default for SubProof<T> {
+    fn default() -> Self {
+        Self(vec![Line::Log(Empty.into(), None)])
+    }
+}
 impl<T> SubProof<T> {
     pub fn make_sub_proof(&mut self, index_map: &[usize]) {
         match index_map {
@@ -215,13 +222,22 @@ impl<T: Display> SubProof<T> {
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct FitchProof<T> {
+    #[serde(default)]
     pub proof: SubProof<T>,
     pub prepositions: Vec<Logic<T>>,
     pub result: Ptr<Logic<T>>,
 }
-impl<T: Display> Display for FitchProof<T> {
+impl<T: Display + Clone> Display for FitchProof<T> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let proof = self.proof.display(&mut 1, 0);
+        let sub_proof = SubProof(
+            self.prepositions
+                .iter()
+                .map(|l| Line::Log(Box::new(l.clone()), Some(Premise)))
+                .collect(),
+        );
+        write!(f, "{}", sub_proof.display(&mut 1, 0))?;
+
+        let proof = self.proof.display(&mut (self.prepositions.len() + 1), 0);
         let result = format!(" result: {}", self.result.display(true));
         let len = proof
             .lines()

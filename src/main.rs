@@ -9,9 +9,13 @@ use util::Droppable;
 mod util;
 
 fn main() {
-    let mut proof = example_proof();
-    println!("{}", serde_json::to_string_pretty(&proof).unwrap())
+    let data = std::fs::read_to_string("data.json").unwrap();
+    let data = serde_json::from_str::<Vec<FitchProof<&str>>>(&data).unwrap();
+    for proof in data {
+        println!("{proof}");
+    }
 
+    // let mut proof = example_proof();
     // println!(" -- Input: --");
     // println!("{proof}");
     // println!(
