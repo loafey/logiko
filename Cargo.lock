@@ -1261,6 +1261,8 @@ dependencies = [
  "dioxus-logger",
  "grass",
  "log",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]

@@ -10,13 +10,15 @@ mod util;
 
 fn main() {
     let mut proof = example_proof();
-    println!(" -- Input: --");
-    println!("{proof}");
-    println!(
-        " -- Proof is valid? --\n{}\n -- Proof with assumed rules: --",
-        proof.verify()
-    );
-    println!("{proof}");
+    println!("{}", serde_json::to_string_pretty(&proof).unwrap())
+
+    // println!(" -- Input: --");
+    // println!("{proof}");
+    // println!(
+    // " -- Proof is valid? --\n{}\n -- Proof with assumed rules: --",
+    // proof.verify()
+    // );
+    // println!("{proof}");
 
     // dioxus_logger::init(dioxus_logger::tracing::Level::INFO).expect("failed to init logger");
     // launch(app);

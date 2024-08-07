@@ -5,13 +5,14 @@ use std::{
 
 pub type Ptr<T> = Box<T>;
 
+use serde::{Deserialize, Serialize};
 use Instruction::*;
 use Line::*;
 use Logic::*;
 
 mod verify;
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Instruction {
     Assumption,
     OrIntroLeft(usize),
@@ -49,7 +50,7 @@ impl Display for Instruction {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Line<T> {
     Sub(SubProof<T>),
     Log(Ptr<Logic<T>>, Option<Instruction>),
@@ -61,7 +62,7 @@ pub enum SelectType {
     SubProof,
 }
 
-#[derive(Debug, Clone, PartialEq, Hash, Eq)]
+#[derive(Debug, Clone, PartialEq, Hash, Eq, Serialize, Deserialize)]
 pub enum Logic<T> {
     Variable(T),
     And(Ptr<Logic<T>>, Ptr<Logic<T>>),
@@ -121,7 +122,7 @@ impl<T: Display> Logic<T> {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct SubProof<T>(pub Vec<Line<T>>);
 impl<T> SubProof<T> {
     pub fn make_sub_proof(&mut self, index_map: &[usize]) {
@@ -212,7 +213,7 @@ impl<T: Display> SubProof<T> {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct FitchProof<T> {
     pub proof: SubProof<T>,
     pub prepositions: Vec<Logic<T>>,
