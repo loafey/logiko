@@ -7,11 +7,11 @@ struct Position<T> {
     index: usize,
     logic: Logic<T>,
 }
-impl<T> Into<Position<T>> for Logic<T> {
-    fn into(self) -> Position<T> {
+impl<T> From<Logic<T>> for Position<T> {
+    fn from(val: Logic<T>) -> Self {
         Position {
             index: 0,
-            logic: self,
+            logic: val,
         }
     }
 }
@@ -223,5 +223,14 @@ impl<T: Clone + Hash + Eq + Debug> FitchProof<T> {
     pub fn verify(&mut self) -> bool {
         self.proof.verify(&mut 0, vec![State::default()]);
         !self.proof.has_invalid()
+            && self
+                .proof
+                .0
+                .last()
+                .map(|l| match l {
+                    Line::Sub(_) => false,
+                    Line::Log(l, _) => **l == *self.result,
+                })
+                .unwrap_or_default()
     }
 }
