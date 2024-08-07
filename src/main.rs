@@ -201,6 +201,7 @@ fn SubProofComp<T: 'static + PartialEq + std::fmt::Display + Clone>(
 fn Proof() -> Element {
     let proof = use_context::<Signal<FitchProof<&'static str>>>();
     let start_time = use_context::<DateTime<chrono::Local>>();
+    let won_time = use_context::<Signal<Option<usize>>>();
     let mut elapsed = use_signal(|| {
         chrono::Local::now()
             .signed_duration_since(start_time)
@@ -229,40 +230,71 @@ fn Proof() -> Element {
     });
     let pres = proof.read().prepositions.clone();
     let pres_len = pres.len();
-    rsx! (div {
-        class: "app-container",
 
-        div {
-            class: "title",
-            "Puzzle: {day_since_start()}, {elapsed.read().as_secs()}s"
-        }
+    let body = if let Some(time) = &*won_time.read() {
+        let win_script = format!(
+            r#"navigator.clipboard.writeText("🧩 I completed Logiko#{} in {time}s 🧩")"#,
+            day_since_start()
+        );
+        rsx! {
+            div {
+                class: "title",
+                "Congrats!"
+            }
 
-        div {
-            class: "result-line",
-            {result}
-        }
+            div {
+                class: "title",
+                "You won in: {time}s"
+            }
 
-        div {
-            class: "sub-proof-outer",
-            for (ind, l) in pres.into_iter().enumerate() {
-                div {
-                    class: "term-line-container",
-                    pre { class: "term-rule", style: "padding-left: 20px", "{ind + 1}:" }
-                    div {
-                        class: "term-line",
-                        Term { term: Box::new(l), outer: true, index: Vec::new(), unselectable: true, other: false }
-                        div { class: "term-rule", "{logic::Instruction::Premise}" }
-                    }
+            div {
+                class: "result-container",
+                button {
+                    onclick: move |_| {
+                        eval(&win_script);
+                    },
+                    "Copy Result"
                 }
             }
-            SubProofComp {
-                sub_proof: own_proof,
-                index: pres_len,
-                index_map: Vec::new(),
-                unselectable: false,
-            }
         }
-        Keyboard {}
+    } else {
+        rsx! {
+            div {
+                class: "title",
+                "Puzzle: {day_since_start()}, {elapsed.read().as_secs()}s"
+            }
+
+            div {
+                class: "result-line",
+                {result}
+            }
+
+            div {
+                class: "sub-proof-outer",
+                for (ind, l) in pres.into_iter().enumerate() {
+                    div {
+                        class: "term-line-container",
+                        pre { class: "term-rule", style: "padding-left: 20px", "{ind + 1}:" }
+                        div {
+                            class: "term-line",
+                            Term { term: Box::new(l), outer: true, index: Vec::new(), unselectable: true, other: false }
+                            div { class: "term-rule", "{logic::Instruction::Premise}" }
+                        }
+                    }
+                }
+                SubProofComp {
+                    sub_proof: own_proof,
+                    index: pres_len,
+                    index_map: Vec::new(),
+                    unselectable: false,
+                }
+            }
+            Keyboard {}
+        }
+    };
+    rsx!(div {
+        class: "app-container",
+        {body}
     })
 }
 
@@ -280,6 +312,8 @@ macro_rules! update_term {
 fn Keyboard() -> Element {
     let mut index_map_ref = use_context::<Signal<Option<Vec<usize>>>>();
     let mut proof = use_context::<Signal<FitchProof<&'static str>>>();
+    let mut won_time = use_context::<Signal<Option<usize>>>();
+    let start_time = use_context::<DateTime<chrono::Local>>();
 
     let res = proof.write().proof.recurse(
         index_map_ref.read().as_ref()?,
@@ -287,7 +321,15 @@ fn Keyboard() -> Element {
         |_| SelectType::Term,
     )?;
     let check = move |_: Event<MouseData>| {
-        proof.write().verify();
+        if proof.write().verify() {
+            *won_time.write() = Some(
+                chrono::Local::now()
+                    .signed_duration_since(start_time)
+                    .to_std()
+                    .unwrap_or_default()
+                    .as_secs() as usize,
+            );
+        }
     };
     match res {
         SelectType::Term => rsx! (div {
@@ -384,6 +426,7 @@ fn app() -> Element {
     use_context_provider::<Signal<Option<Vec<usize>>>>(|| Signal::new(Some(vec![0])));
     use_context_provider(|| Signal::new(0usize));
     use_context_provider(chrono::Local::now);
+    use_context_provider::<Signal<Option<usize>>>(|| Signal::new(None));
     let style = grass::include!("src/style.scss");
 
     rsx! {
