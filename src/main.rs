@@ -271,7 +271,8 @@ fn Proof() -> Element {
         rsx! {
             div {
                 class: "title",
-                "Puzzle: {day_since_start()}, {elapsed.read().as_secs()}s",
+                "Puzzle: {day_since_start()}, "
+                span {"{elapsed.read().as_secs()}s"}
             }
 
             div {
