@@ -19,13 +19,14 @@
     // --color-fg1: 236, 163, 177;
     // --color-fg2: 87, 199, 241;
     --color-fg3: 37, 131, 0;
-    --color-fg4: 61, 97, 88;
+    --color-fg4: 91, 97, 188;
     --app-max-width: 900px;
 
     --app-border-radius: 5px;
     --app-border-padding: 0px;
 
     --button-margin: 5px;
+    --button-border: solid white 5px;
 }
 
 * {
@@ -42,6 +43,7 @@ button {
     border-width: var(--term-border-radius);
     margin: var(--button-margin);
     cursor: pointer;
+    border: var(--button-border);
 }
 
 
@@ -186,12 +188,6 @@ body {
     font-family: var(--text-font);
     font-size: 3em;
     text-align: center;
-
-    button {
-        background-color: transparent;
-        border: none;
-        cursor: pointer;
-    }
 
     span {
         font-family: (var(--term-font));
