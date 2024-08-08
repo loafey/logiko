@@ -41,12 +41,44 @@ button {
     min-width: calc(var(--term-font-size) * 2);
     border-width: var(--term-border-radius);
     margin: var(--button-margin);
+    cursor: pointer;
 }
+
 
 body {
     background-color: rgb(var(--color-bg1));
     margin: 0;
     padding: 0;
+}
+
+.info-screen {
+    text-align: center;
+    font-family: var(--text-font);
+
+    p {
+        font-size: 1.3em;
+        text-align: left;
+        padding: 0px 20px 0px 20px;
+
+        span {
+            filter: hue-rotate(300deg) contrast(100%) brightness(3);
+            animation: crabby 3s infinite;
+        }
+
+        @keyframes crabby {
+            0% {
+                filter: hue-rotate(220deg) contrast(100%) brightness(3);
+            }
+
+            50% {
+                filter: hue-rotate(300deg) contrast(100%) brightness(3);
+            }
+
+            100% {
+                filter: hue-rotate(220deg) contrast(100%) brightness(3);
+            }
+        }
+    }
 }
 
 .result-container {
@@ -154,6 +186,12 @@ body {
     font-family: var(--text-font);
     font-size: 3em;
     text-align: center;
+
+    button {
+        background-color: transparent;
+        border: none;
+        cursor: pointer;
+    }
 
     span {
         font-family: (var(--term-font));

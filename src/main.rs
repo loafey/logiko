@@ -188,6 +188,8 @@ fn Proof() -> Element {
     let GlobalProof(proof) = use_context();
     let StartTime(start_time) = use_context();
     let WonTime(won_time) = use_context();
+    let InfoScreen(mut info_screen) = use_context();
+
     let mut elapsed = use_signal(|| {
         Local::now()
             .signed_duration_since(start_time)
@@ -217,7 +219,53 @@ fn Proof() -> Element {
     let pres = proof.read().prepositions.clone();
     let pres_len = pres.len();
 
-    let body = if let Some(time) = &*won_time.read() {
+    let body = if *info_screen.read() {
+        rsx! (div {
+            class: "info-screen",
+            h1 {
+                "logiko"
+            }
+            p {
+                "A puzzle game where you create Fitch-style "
+                "natural deduction proofs under a time limit."
+            }
+            p {
+                "Made over the course of a week while I should have studied for my "
+                "Logic re-exam."
+            }
+            p {
+                "As it was made rather quickly bugs may exist and the game is somewhat "
+                "rough around the edges, and if you find anything that should be improved "
+                "please email me at "
+                a {href:"mailto:bugs@loafey.se", "bugs@loafey.se"}
+                " or at loafey on Discord."
+            }
+            p {
+                "Source code can be found over at "
+                a {
+                    href: "https://github.com/loafey/logic",
+                    "github.com/loafey/logic"
+                }
+                " ("
+                span {
+                    "🦀"
+                }
+                ")"
+            }
+            p {
+                "I currently have the following on my todo list:"
+                pre {
+                    style: "white-space: pre-wrap",
+                    "{include_str!(\"../notes.md\")}"
+                }
+            }
+
+            button {
+                onclick: move |_| info_screen.set(false),
+                "Close"
+            }
+        })
+    } else if let Some(time) = &*won_time.read() {
         let win_script = format!(
             r#"navigator.clipboard.writeText("🧩 I completed Logiko#{} in {time}s 🧩")"#,
             day_since_start()
@@ -313,6 +361,7 @@ fn Keyboard() -> Element {
     let WonTime(mut won_time) = use_context();
     let ErrorField(mut error_field) = use_context();
     let StartTime(start_time) = use_context();
+    let InfoScreen(mut info_screen) = use_context();
 
     let res = proof.write().proof.recurse(
         index_map_ref.read().as_ref()?,
@@ -411,6 +460,12 @@ fn Keyboard() -> Element {
                     "s"
                 }
                 button { onclick: check, "🔎" }
+                button {
+                    onclick: move |_| {
+                        info_screen.set(true);
+                    },
+                    "?"
+                }
             }
         }),
         SelectType::SubProof => rsx! { button { onclick: check, "🔎" }},
@@ -438,6 +493,9 @@ struct WonTime(Signal<Option<usize>>);
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct StartTime(DateTime<Local>);
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct InfoScreen(Signal<bool>);
+
 #[allow(unused)]
 fn app() -> Element {
     let GlobalProof(mut sig) = use_context_provider(|| GlobalProof(Signal::new(empty())));
@@ -450,6 +508,7 @@ fn app() -> Element {
     use_context_provider(|| ErrorField(Signal::new(None)));
     use_context_provider(|| TermSelector(Signal::new(Some(vec![0]))));
     use_context_provider(|| StartTime(Local::now()));
+    use_context_provider(|| InfoScreen(Signal::new(false)));
     use_context_provider(|| WonTime(Signal::new(None)));
     let style = grass::include!("src/style.scss");
 
