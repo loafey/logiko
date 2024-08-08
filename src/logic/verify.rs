@@ -1,4 +1,8 @@
-use std::{collections::HashMap, fmt::Debug, hash::Hash};
+use std::{
+    collections::HashMap,
+    fmt::{Debug, Display},
+    hash::Hash,
+};
 
 use crate::util::Droppable;
 
@@ -68,12 +72,13 @@ fn find_symbol<'a, T: Hash + Eq + PartialEq>(
     None
 }
 
-impl<T: Clone + Hash + Eq + Debug> SubProof<T> {
+impl<T: Clone + Hash + Eq + Debug + Display> SubProof<T> {
+    #[allow(clippy::type_complexity)]
     fn verify(
         &mut self,
         index: &mut usize,
         mut stack: Vec<State<T>>,
-    ) -> (Option<Position<T>>, Option<Position<T>>) {
+    ) -> Result<(Option<Position<T>>, Option<Position<T>>), String> {
         let mut first = None;
         let mut last = None;
         let proof_len = self.0.len();
@@ -84,7 +89,7 @@ impl<T: Clone + Hash + Eq + Debug> SubProof<T> {
                     stack.last_mut().unwrap().can_assume = false;
                     let mut new_stack = stack.clone();
                     new_stack.push(State::default().can_assume());
-                    let (f, l) = s.verify(index, new_stack);
+                    let (f, l) = s.verify(index, new_stack)?;
                     if let Some(f) = f {
                         stack.last_mut().unwrap().symbols.insert(f, l);
                     }
@@ -188,7 +193,12 @@ impl<T: Clone + Hash + Eq + Debug> SubProof<T> {
                                     *t = Some(Instruction::Invalid)
                                 }
                             }
-                            x => println!("ERROR: {x:?}"),
+                            x => {
+                                return Err(format!(
+                                    "ERROR: Failed to find suitable rule for term \"{}\"",
+                                    x.display(true)
+                                ))
+                            }
                         }
                     }
                     stack.last_mut().unwrap().symbols.insert(
@@ -202,7 +212,7 @@ impl<T: Clone + Hash + Eq + Debug> SubProof<T> {
             }
         }
 
-        (first, last)
+        Ok((first, last))
     }
 
     fn has_invalid(&self) -> bool {
@@ -221,8 +231,8 @@ impl<T: Clone + Hash + Eq + Debug> SubProof<T> {
         res
     }
 }
-impl<T: Clone + Hash + Eq + Debug> FitchProof<T> {
-    pub fn verify(&mut self) -> bool {
+impl<T: Clone + Hash + Eq + Debug + Display> FitchProof<T> {
+    pub fn verify(&mut self) -> Result<bool, String> {
         let mut state = State::default();
         self.prepositions.iter().enumerate().for_each(|(i, l)| {
             state
@@ -237,8 +247,8 @@ impl<T: Clone + Hash + Eq + Debug> FitchProof<T> {
                 .drop()
         });
 
-        self.proof.verify(&mut 0, vec![state]);
-        !self.proof.has_invalid()
+        self.proof.verify(&mut 0, vec![state])?;
+        Ok(!self.proof.has_invalid()
             && self
                 .proof
                 .0
@@ -247,6 +257,6 @@ impl<T: Clone + Hash + Eq + Debug> FitchProof<T> {
                     Line::Sub(_) => false,
                     Line::Log(l, _) => **l == *self.result,
                 })
-                .unwrap_or_default()
+                .unwrap_or_default())
     }
 }

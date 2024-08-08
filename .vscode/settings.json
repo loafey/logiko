@@ -3,6 +3,7 @@
         "chrono",
         "dioxus",
         "Elim",
-        "onclick"
+        "onclick",
+        "wasmtimer"
     ]
 }

@@ -4,6 +4,7 @@ extern crate log;
 
 use chrono::DateTime;
 use dioxus::prelude::*;
+use std::fmt::Write;
 mod logic;
 use logic::{empty, FitchProof, Line, Logic, Ptr, SelectType, SubProof};
 use util::Droppable;
@@ -258,10 +259,19 @@ fn Proof() -> Element {
             }
         }
     } else {
+        let error_field = use_context::<ErrorField>();
+        let error = if let Some(ef) = &*error_field.0.read() {
+            rsx!(pre {
+                "Please report all errors to bugs@loafey.se, or loafey on Discord.\n"
+                "{ef}"
+            })
+        } else {
+            rsx!()
+        };
         rsx! {
             div {
                 class: "title",
-                "Puzzle: {day_since_start()}, {elapsed.read().as_secs()}s"
+                "Puzzle: {day_since_start()}, {elapsed.read().as_secs()}s",
             }
 
             div {
@@ -271,10 +281,12 @@ fn Proof() -> Element {
 
             div {
                 class: "sub-proof-outer",
+                {error}
+
                 for (ind, l) in pres.into_iter().enumerate() {
                     div {
                         class: "term-line-container",
-                        pre { class: "term-rule", style: "padding-left: 20px", "{ind + 1}:" }
+                        pre { class: "term-rule", style: "padding-left: 15px", "{ind + 1}:" }
                         div {
                             class: "term-line",
                             Term { term: Box::new(l), outer: true, index: Vec::new(), unselectable: true, other: false }
@@ -313,6 +325,7 @@ fn Keyboard() -> Element {
     let mut index_map_ref = use_context::<Signal<Option<Vec<usize>>>>();
     let mut proof = use_context::<Signal<FitchProof<&'static str>>>();
     let mut won_time = use_context::<Signal<Option<usize>>>();
+    let mut error_field = use_context::<ErrorField>();
     let start_time = use_context::<DateTime<chrono::Local>>();
 
     let res = proof.write().proof.recurse(
@@ -321,15 +334,27 @@ fn Keyboard() -> Element {
         |_| SelectType::Term,
     )?;
     let check = move |_: Event<MouseData>| {
-        if proof.write().verify() {
-            *won_time.write() = Some(
-                chrono::Local::now()
-                    .signed_duration_since(start_time)
-                    .to_std()
-                    .unwrap_or_default()
-                    .as_secs() as usize,
-            );
-        }
+        match proof.write().verify() {
+            Ok(b) => {
+                if b {
+                    *won_time.write() = Some(
+                        chrono::Local::now()
+                            .signed_duration_since(start_time)
+                            .to_std()
+                            .unwrap_or_default()
+                            .as_secs() as usize,
+                    );
+                }
+            }
+            Err(s) => {
+                let mut r = error_field.0.write();
+                if let Some(field) = &mut *r {
+                    let _ = write!(field, "\n{s}");
+                } else {
+                    *r = Some(s);
+                }
+            }
+        };
     };
     match res {
         SelectType::Term => rsx! (div {
@@ -414,6 +439,9 @@ fn day_since_start() -> usize {
         .num_days() as usize
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct ErrorField(Signal<Option<String>>);
+
 #[allow(unused)]
 fn app() -> Element {
     let mut sig = use_context_provider(|| Signal::new(empty()));
@@ -423,6 +451,7 @@ fn app() -> Element {
         // *sig.write() = json[0].clone();
         *sig.write() = json[day_since_start() % json.len()].clone();
     });
+    use_context_provider::<ErrorField>(|| ErrorField(Signal::new(None)));
     use_context_provider::<Signal<Option<Vec<usize>>>>(|| Signal::new(Some(vec![0])));
     use_context_provider(|| Signal::new(0usize));
     use_context_provider(chrono::Local::now);
