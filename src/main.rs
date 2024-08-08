@@ -2,7 +2,7 @@
 #[macro_use]
 extern crate log;
 
-use chrono::DateTime;
+use chrono::{DateTime, Local};
 use dioxus::prelude::*;
 use std::fmt::Write;
 mod logic;
@@ -11,21 +11,6 @@ use util::Droppable;
 mod util;
 
 fn main() {
-    // let data = std::fs::read_to_string("data.json").unwrap();
-    // let data = serde_json::from_str::<Vec<FitchProof<&str>>>(&data).unwrap();
-    // for proof in data {
-    //     println!("{proof}");
-    // }
-
-    // let mut proof = example_proof();
-    // println!(" -- Input: --");
-    // println!("{proof}");
-    // println!(
-    // " -- Proof is valid? --\n{}\n -- Proof with assumed rules: --",
-    // proof.verify()
-    // );
-    // println!("{proof}");
-
     dioxus_logger::init(dioxus_logger::tracing::Level::INFO).expect("failed to init logger");
     launch(app);
 }
@@ -38,7 +23,7 @@ fn Term<T: 'static + PartialEq + std::fmt::Display + Clone>(
     unselectable: bool,
     other: bool,
 ) -> Element {
-    let mut index_var = use_context::<Signal<Option<Vec<usize>>>>();
+    let TermSelector(mut index_var) = use_context();
 
     let class = if let Some(map) = index_var.read().as_ref() {
         map == &index
@@ -120,8 +105,8 @@ fn SubProofComp<T: 'static + PartialEq + std::fmt::Display + Clone>(
     index_map: Vec<usize>,
     unselectable: bool,
 ) -> Element {
-    let mut proof = use_context::<Signal<FitchProof<&'static str>>>();
-    let mut index_map_ref = use_context::<Signal<Option<Vec<usize>>>>();
+    let GlobalProof(mut proof) = use_context();
+    let TermSelector(mut index_map_ref) = use_context();
     let SubProof(lines) = sub_proof;
     let lines = lines.into_iter().enumerate().map(|(i, line)| {
         let mut c = index_map.clone();
@@ -200,11 +185,11 @@ fn SubProofComp<T: 'static + PartialEq + std::fmt::Display + Clone>(
 
 #[component]
 fn Proof() -> Element {
-    let proof = use_context::<Signal<FitchProof<&'static str>>>();
-    let start_time = use_context::<DateTime<chrono::Local>>();
-    let won_time = use_context::<Signal<Option<usize>>>();
+    let GlobalProof(proof) = use_context();
+    let StartTime(start_time) = use_context();
+    let WonTime(won_time) = use_context();
     let mut elapsed = use_signal(|| {
-        chrono::Local::now()
+        Local::now()
             .signed_duration_since(start_time)
             .to_std()
             .unwrap_or_default()
@@ -212,7 +197,7 @@ fn Proof() -> Element {
     use_coroutine::<(), _, _>(move |_: UnboundedReceiver<_>| async move {
         loop {
             elapsed.set(
-                chrono::Local::now()
+                Local::now()
                     .signed_duration_since(start_time)
                     .to_std()
                     .unwrap_or_default(),
@@ -259,8 +244,8 @@ fn Proof() -> Element {
             }
         }
     } else {
-        let error_field = use_context::<ErrorField>();
-        let error = if let Some(ef) = &*error_field.0.read() {
+        let ErrorField(error_field) = use_context();
+        let error = if let Some(ef) = &*error_field.read() {
             rsx!(pre {
                 "Please report all errors to bugs@loafey.se, or loafey on Discord.\n"
                 "{ef}"
@@ -323,11 +308,11 @@ macro_rules! update_term {
 
 #[component]
 fn Keyboard() -> Element {
-    let mut index_map_ref = use_context::<Signal<Option<Vec<usize>>>>();
-    let mut proof = use_context::<Signal<FitchProof<&'static str>>>();
-    let mut won_time = use_context::<Signal<Option<usize>>>();
-    let mut error_field = use_context::<ErrorField>();
-    let start_time = use_context::<DateTime<chrono::Local>>();
+    let TermSelector(mut index_map_ref) = use_context();
+    let GlobalProof(mut proof) = use_context();
+    let WonTime(mut won_time) = use_context();
+    let ErrorField(mut error_field) = use_context();
+    let StartTime(start_time) = use_context();
 
     let res = proof.write().proof.recurse(
         index_map_ref.read().as_ref()?,
@@ -339,7 +324,7 @@ fn Keyboard() -> Element {
             Ok(b) => {
                 if b {
                     *won_time.write() = Some(
-                        chrono::Local::now()
+                        Local::now()
                             .signed_duration_since(start_time)
                             .to_std()
                             .unwrap_or_default()
@@ -348,7 +333,7 @@ fn Keyboard() -> Element {
                 }
             }
             Err(s) => {
-                let mut r = error_field.0.write();
+                let mut r = error_field.write();
                 if let Some(field) = &mut *r {
                     let _ = write!(field, "\n{s}");
                 } else {
@@ -435,28 +420,37 @@ fn Keyboard() -> Element {
 fn day_since_start() -> usize {
     let date_str = "Wed, 7 Aug 2024 10:52:37 +0200";
     let datetime = DateTime::parse_from_rfc2822(date_str).unwrap();
-    chrono::Local::now()
-        .signed_duration_since(datetime)
-        .num_days() as usize
+    Local::now().signed_duration_since(datetime).num_days() as usize
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct ErrorField(Signal<Option<String>>);
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct GlobalProof(Signal<FitchProof<&'static str>>);
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct TermSelector(Signal<Option<Vec<usize>>>);
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct WonTime(Signal<Option<usize>>);
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct StartTime(DateTime<Local>);
+
 #[allow(unused)]
 fn app() -> Element {
-    let mut sig = use_context_provider(|| Signal::new(empty()));
+    let GlobalProof(mut sig) = use_context_provider(|| GlobalProof(Signal::new(empty())));
     use_coroutine(move |_: UnboundedReceiver<()>| async move {
         let data = include_str!("../data.json");
         let json = serde_json::from_str::<Vec<FitchProof<&str>>>(data).unwrap();
         // *sig.write() = json[0].clone();
         *sig.write() = json[day_since_start() % json.len()].clone();
     });
-    use_context_provider::<ErrorField>(|| ErrorField(Signal::new(None)));
-    use_context_provider::<Signal<Option<Vec<usize>>>>(|| Signal::new(Some(vec![0])));
-    use_context_provider(|| Signal::new(0usize));
-    use_context_provider(chrono::Local::now);
-    use_context_provider::<Signal<Option<usize>>>(|| Signal::new(None));
+    use_context_provider(|| ErrorField(Signal::new(None)));
+    use_context_provider(|| TermSelector(Signal::new(Some(vec![0]))));
+    use_context_provider(|| StartTime(Local::now()));
+    use_context_provider(|| WonTime(Signal::new(None)));
     let style = grass::include!("src/style.scss");
 
     rsx! {
