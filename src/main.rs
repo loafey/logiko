@@ -267,9 +267,10 @@ fn Proof() -> Element {
         })
     } else if let Some(time) = &*won_time.read() {
         let win_script = format!(
-            r#"navigator.clipboard.writeText("🧩 I completed Logiko#{} in {time}s 🧩")"#,
+            r#"navigator.clipboard.writeText("🧩 I completed Logiko#{} in {time}s 🧩\nI used X lines, X sub proofs and X terms")"#,
             day_since_start()
         );
+
         rsx! {
             div {
                 class: "title",

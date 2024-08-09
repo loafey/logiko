@@ -1,1 +1,367 @@
-[{"prepositions":[],"result":{"Or":[{"Variable":"p"},{"Implies":[{"Variable":"p"},{"Variable":"q"}]}]}},{"prepositions":[{"Not":{"And":[{"Variable":"p"},{"Variable":"s"}]}},{"Not":{"And":[{"Not":{"Variable":"s"}},{"Variable":"q"}]}}],"result":{"Not":{"And":[{"And":[{"Variable":"p"},{"Variable":"r"}]},{"Variable":"q"}]}}},{"prepositions":[{"Or":[{"Variable":"p"},{"Variable":"q"}]}],"result":{"Or":[{"Variable":"p"},{"Variable":"q"}]}},{"prepositions":[{"Not":{"And":[{"Not":{"Variable":"p"}},{"Not":{"Variable":"q"}}]}}],"result":{"Or":[{"Variable":"p"},{"Variable":"q"}]}},{"prepositions":[{"Implies":[{"Implies":[{"Variable":"p"},{"Variable":"q"}]},{"Implies":[{"Variable":"p"},{"Variable":"r"}]}]}],"result":{"Implies":[{"Or":[{"Variable":"p"},{"Variable":"r"}]},{"Implies":[{"Variable":"q"},{"Variable":"r"}]}]}},{"prepositions":[{"Implies":[{"Or":[{"Variable":"p"},{"Variable":"q"}]},{"Or":[{"Variable":"p"},{"Variable":"r"}]}]}],"result":{"Or":[{"Variable":"p"},{"Implies":[{"Variable":"q"},{"Variable":"r"}]}]}},{"prepositions":[{"Implies":[{"And":[{"Variable":"p"},{"Not":{"Variable":"q"}}]},{"Variable":"r"}]}],"result":{"Implies":[{"And":[{"Not":{"Variable":"r"}},{"Variable":"p"}]},{"Variable":"q"}]}},{"prepositions":[{"Or":[{"Variable":"p"},{"Variable":"q"}]},{"Implies":[{"Variable":"p"},{"Variable":"r"}]},{"Implies":[{"Not":{"Variable":"s"}},{"Not":{"Variable":"q"}}]}],"result":{"Or":[{"Variable":"r"},{"Variable":"s"}]}},{"prepositions":[{"Not":{"And":[{"Variable":"p"},{"Variable":"s"}]}},{"Not":{"And":[{"Not":{"Variable":"s"}},{"Variable":"q"}]}}],"result":{"Not":{"And":[{"And":[{"Variable":"p"},{"Variable":"r"}]},{"Variable":"q"}]}}}]
+[
+    {
+        "prepositions": [],
+        "result": {
+            "Or": [
+                {
+                    "Variable": "p"
+                },
+                {
+                    "Implies": [
+                        {
+                            "Variable": "p"
+                        },
+                        {
+                            "Variable": "q"
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    {
+        "prepositions": [
+            {
+                "Not": {
+                    "And": [
+                        {
+                            "Variable": "p"
+                        },
+                        {
+                            "Variable": "s"
+                        }
+                    ]
+                }
+            },
+            {
+                "Not": {
+                    "And": [
+                        {
+                            "Not": {
+                                "Variable": "s"
+                            }
+                        },
+                        {
+                            "Variable": "q"
+                        }
+                    ]
+                }
+            }
+        ],
+        "result": {
+            "Not": {
+                "And": [
+                    {
+                        "And": [
+                            {
+                                "Variable": "p"
+                            },
+                            {
+                                "Variable": "r"
+                            }
+                        ]
+                    },
+                    {
+                        "Variable": "q"
+                    }
+                ]
+            }
+        }
+    },
+    {
+        "prepositions": [
+            {
+                "Or": [
+                    {
+                        "Variable": "p"
+                    },
+                    {
+                        "Variable": "q"
+                    }
+                ]
+            }
+        ],
+        "result": {
+            "Not": {
+                "And": [
+                    {
+                        "Not": {
+                            "Variable": "p"
+                        }
+                    },
+                    {
+                        "Not": {
+                            "Variable": "q"
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    {
+        "prepositions": [
+            {
+                "Not": {
+                    "And": [
+                        {
+                            "Not": {
+                                "Variable": "p"
+                            }
+                        },
+                        {
+                            "Not": {
+                                "Variable": "q"
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "result": {
+            "Or": [
+                {
+                    "Variable": "p"
+                },
+                {
+                    "Variable": "q"
+                }
+            ]
+        }
+    },
+    {
+        "prepositions": [
+            {
+                "Implies": [
+                    {
+                        "Implies": [
+                            {
+                                "Variable": "p"
+                            },
+                            {
+                                "Variable": "q"
+                            }
+                        ]
+                    },
+                    {
+                        "Implies": [
+                            {
+                                "Variable": "p"
+                            },
+                            {
+                                "Variable": "r"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        "result": {
+            "Implies": [
+                {
+                    "Or": [
+                        {
+                            "Variable": "p"
+                        },
+                        {
+                            "Variable": "r"
+                        }
+                    ]
+                },
+                {
+                    "Implies": [
+                        {
+                            "Variable": "q"
+                        },
+                        {
+                            "Variable": "r"
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    {
+        "prepositions": [
+            {
+                "Implies": [
+                    {
+                        "Or": [
+                            {
+                                "Variable": "p"
+                            },
+                            {
+                                "Variable": "q"
+                            }
+                        ]
+                    },
+                    {
+                        "Or": [
+                            {
+                                "Variable": "p"
+                            },
+                            {
+                                "Variable": "r"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        "result": {
+            "Or": [
+                {
+                    "Variable": "p"
+                },
+                {
+                    "Implies": [
+                        {
+                            "Variable": "q"
+                        },
+                        {
+                            "Variable": "r"
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    {
+        "prepositions": [
+            {
+                "Implies": [
+                    {
+                        "And": [
+                            {
+                                "Variable": "p"
+                            },
+                            {
+                                "Not": {
+                                    "Variable": "q"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "Variable": "r"
+                    }
+                ]
+            }
+        ],
+        "result": {
+            "Implies": [
+                {
+                    "And": [
+                        {
+                            "Not": {
+                                "Variable": "r"
+                            }
+                        },
+                        {
+                            "Variable": "p"
+                        }
+                    ]
+                },
+                {
+                    "Variable": "q"
+                }
+            ]
+        }
+    },
+    {
+        "prepositions": [
+            {
+                "Or": [
+                    {
+                        "Variable": "p"
+                    },
+                    {
+                        "Variable": "q"
+                    }
+                ]
+            },
+            {
+                "Implies": [
+                    {
+                        "Variable": "p"
+                    },
+                    {
+                        "Variable": "r"
+                    }
+                ]
+            },
+            {
+                "Implies": [
+                    {
+                        "Not": {
+                            "Variable": "s"
+                        }
+                    },
+                    {
+                        "Not": {
+                            "Variable": "q"
+                        }
+                    }
+                ]
+            }
+        ],
+        "result": {
+            "Or": [
+                {
+                    "Variable": "r"
+                },
+                {
+                    "Variable": "s"
+                }
+            ]
+        }
+    },
+    {
+        "prepositions": [
+            {
+                "Not": {
+                    "And": [
+                        {
+                            "Variable": "p"
+                        },
+                        {
+                            "Variable": "s"
+                        }
+                    ]
+                }
+            },
+            {
+                "Not": {
+                    "And": [
+                        {
+                            "Not": {
+                                "Variable": "s"
+                            }
+                        },
+                        {
+                            "Variable": "q"
+                        }
+                    ]
+                }
+            }
+        ],
+        "result": {
+            "Not": {
+                "And": [
+                    {
+                        "And": [
+                            {
+                                "Variable": "p"
+                            },
+                            {
+                                "Variable": "r"
+                            }
+                        ]
+                    },
+                    {
+                        "Variable": "q"
+                    }
+                ]
+            }
+        }
+    }
+]
