@@ -210,6 +210,15 @@ impl<T: Clone + Hash + Eq + Debug + Display> SubProof<T> {
 
                     if matches!(**l, Logic::Empty) {
                         *t = Some(Instruction::Invalid);
+                    } else if let Some((a, _)) = find_symbol(
+                        &Position {
+                            index: 0,
+                            logic: Logic::Not(Logic::Not(l.clone()).into()),
+                        },
+                        &None,
+                        &stack,
+                    ) {
+                        *t = Some(Instruction::NotNotElim(a.index));
                     }
                     // Impl elim
                     else if let Some((a, b)) = find_implication_elim(
