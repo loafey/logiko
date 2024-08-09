@@ -221,6 +221,20 @@ impl<T: Clone + Hash + Eq + Debug + Display> SubProof<T> {
                         *t = Some(Instruction::Pbc(a.index..=b.as_ref().unwrap().index));
                     } else {
                         match &mut **l {
+                            // Not intro
+                            Logic::Not(a) => {
+                                if let Some((a, b)) = find_symbol(
+                                    &(**a).clone().into(),
+                                    &Some(Logic::Bottom.into()),
+                                    &stack,
+                                ) {
+                                    *t = Some(Instruction::NotIntro(
+                                        a.index..=b.clone().map(|b| b.index).unwrap_or_default(),
+                                    ));
+                                } else {
+                                    *t = Some(Instruction::Invalid);
+                                }
+                            }
                             // Impl introduction
                             Logic::Implies(a, b) => {
                                 if let Some((a, b)) = find_symbol(
@@ -238,6 +252,7 @@ impl<T: Clone + Hash + Eq + Debug + Display> SubProof<T> {
                             // Or introduction
                             Logic::Or(a, b) => {
                                 if **a == Logic::Not((*b).clone()) {
+                                    // LEM
                                     *t = Some(Instruction::Lem);
                                 } else {
                                     *t = Some(

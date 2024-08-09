@@ -14,21 +14,23 @@ mod verify;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Instruction {
-    Assumption,
-    OrIntroLeft(usize),
-    OrIntroRight(usize),
-    OrElim(usize, RangeInclusive<usize>, RangeInclusive<usize>),
-    NotElim(usize, usize),
-    BottomElim(usize),
-    ImplIntro(RangeInclusive<usize>),
+    Assumption,                                                  // Implemented
+    OrIntroLeft(usize),                                          // Implemented
+    OrIntroRight(usize),                                         // Implemented
+    OrElim(usize, RangeInclusive<usize>, RangeInclusive<usize>), // Implemented
+    NotElim(usize, usize),                                       // Implemented
+    NotIntro(RangeInclusive<usize>),                             // Implemented
+    BottomElim(usize),                                           // Implemented
+    ImplIntro(RangeInclusive<usize>),                            // Implemented
+    ImplElim(usize, usize),
     AndIntro(usize, usize),
-    AndElimLeft(usize),
-    AndElimRight(usize),
-    Pbc(RangeInclusive<usize>),
-    Copy(usize),
-    Lem,
-    Premise,
-    Invalid,
+    AndElimLeft(usize),         // Implemented
+    AndElimRight(usize),        // Implemented
+    Pbc(RangeInclusive<usize>), // Implemented
+    Copy(usize),                // Implemented UNSURE IF WANT
+    Lem,                        // Implemented
+    Premise,                    // Implemented
+    Invalid,                    // Implemented
 }
 impl Display for Instruction {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -48,8 +50,10 @@ impl Display for Instruction {
             AndElimLeft(i) => write!(f, "∧l {i}"),
             AndElimRight(i) => write!(f, "∧r {i}"),
             NotElim(a, b) => write!(f, "¬e {a} {b}"),
+            NotIntro(a) => write!(f, "¬i {}-{}", a.start(), a.end()),
             BottomElim(i) => write!(f, "⊥e {i}"),
             ImplIntro(r) => write!(f, "→i {}-{}", r.start(), r.end()),
+            ImplElim(a, b) => write!(f, "→i {a} {b}"),
             Pbc(r) => write!(f, "PBC {}-{}", r.start(), r.end()),
             Copy(i) => write!(f, "copy {i}"),
             Invalid => write!(f, "🛑"),
