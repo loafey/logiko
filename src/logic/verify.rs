@@ -53,6 +53,21 @@ impl<T> Default for State<T> {
         }
     }
 }
+fn find_symbol_in_and<'a, T: Hash + Eq + PartialEq>(
+    nk: &Position<T>,
+    state: &'a [State<T>],
+) -> Option<(bool, &'a Position<T>)> {
+    for s in state.iter().rev() {
+        for (k, _) in s.symbols.iter() {
+            match &k.logic {
+                Logic::And(lk, _) if nk.logic == **lk => return Some((true, k)),
+                Logic::And(_, lk) if nk.logic == **lk => return Some((false, k)),
+                _ => continue,
+            }
+        }
+    }
+    None
+}
 fn find_symbol<'a, T: Hash + Eq + PartialEq>(
     nk: &Position<T>,
     nv: &Option<Position<T>>,
@@ -122,9 +137,26 @@ impl<T: Clone + Hash + Eq + Debug + Display> SubProof<T> {
                         continue;
                     }
 
+                    if matches!(**l, Logic::Empty) {
+                        *t = Some(Instruction::Invalid);
+                    }
                     // Bottom elim
-                    if let Some((a, _)) = find_symbol(&Logic::Bottom.into(), &None, &stack) {
+                    else if let Some((a, _)) = find_symbol(&Logic::Bottom.into(), &None, &stack) {
                         *t = Some(Instruction::BottomElim(a.index));
+                    }
+                    // and elim
+                    else if let Some((left, a)) = find_symbol_in_and(
+                        &Position {
+                            logic: *l.clone(),
+                            index: 0,
+                        },
+                        &stack,
+                    ) {
+                        if left {
+                            *t = Some(Instruction::AndElimLeft(a.index))
+                        } else {
+                            *t = Some(Instruction::AndElimRight(a.index))
+                        }
                     }
                     // PBC
                     else if let Some((a, b)) = find_symbol(
@@ -247,7 +279,8 @@ impl<T: Clone + Hash + Eq + Debug + Display> FitchProof<T> {
                 .drop()
         });
 
-        self.proof.verify(&mut 0, vec![state])?;
+        self.proof
+            .verify(&mut self.prepositions.len(), vec![state])?;
         Ok(!self.proof.has_invalid()
             && self
                 .proof

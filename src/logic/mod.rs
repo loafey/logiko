@@ -64,7 +64,8 @@ pub enum SelectType {
     SubProof,
 }
 
-#[derive(Debug, Clone, PartialEq, Hash, Eq, Serialize, Deserialize)]
+#[allow(clippy::derived_hash_with_manual_eq)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Logic<T> {
     Variable(T),
     And(Ptr<Logic<T>>, Ptr<Logic<T>>),
