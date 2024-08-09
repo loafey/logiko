@@ -172,13 +172,16 @@ fn SubProofComp<T: 'static + PartialEq + std::fmt::Display + Clone>(
             button {
                 onclick: move |_| {
                     let mut c = index_map.clone();
-                    c.push(index);
-                    proof.write().proof.recurse(&index_map, |s| {
+                    let pos = proof.write().proof.recurse(&index_map, |s| {
+                        let pos = s.0.len();
                         s.0.push(
                             Line::Log(Logic::Empty.into(), None)
-                        )
-                        ;
-                    }, |_|{});
+                        );
+                        Some(pos)
+                    }, |_| None);
+                    if let Some(Some(pos)) = pos {
+                        c.push(pos);
+                    }
                     *index_map_ref.write() = Some(c.clone());
                 },
                 "+"
@@ -193,7 +196,7 @@ fn Proof() -> Element {
     let StartTime(start_time) = use_context();
     let WonTime(won_time) = use_context();
     let InfoScreen(mut info_screen) = use_context();
-    // let TermSelector(debug) = use_context();
+    let TermSelector(debug) = use_context();
 
     let mut elapsed = use_signal(|| {
         Local::now()
@@ -312,7 +315,7 @@ fn Proof() -> Element {
                 class: "title",
                 "Puzzle: {day_since_start()}, "
                 span {"{elapsed.read().as_secs()}s"}
-                // span {" {debug:?}"}
+                span {" {debug:?}"}
             }
 
             div {
