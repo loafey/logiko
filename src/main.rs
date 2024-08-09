@@ -285,7 +285,7 @@ fn Proof() -> Element {
         large_bottom = true;
         let stats = proof.read().stats();
         let win_script = format!(
-            r#"navigator.clipboard.writeText("🧩 I completed Logiko#{} in {time}s 🧩\nI used {} lines, {} sub proofs and {} terms")"#,
+            r#"navigator.clipboard.writeText("🧩 I completed Logiko#{} in {time}s 🧩\nI used {} lines, {} sub proofs and {} terms\n\nhttps://loafey.se/logiko/")"#,
             day_since_start(),
             stats.lines,
             stats.sub_proofs,

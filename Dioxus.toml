@@ -6,7 +6,7 @@ asset_dir = "public"
 
 [web.app]
 title = "logiko"
-# base_path = "logiko"
+base_path = "logiko"
 
 
 [web.resource.dev]
