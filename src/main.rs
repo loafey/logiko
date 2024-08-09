@@ -355,8 +355,13 @@ macro_rules! update_term {
     ($index_map_ref:expr, $proof:expr, $exp:expr) => {
         move |_| {
             let c = $index_map_ref.read().as_ref().unwrap().clone();
+            let new_index = $proof.read().next_select(&c);
             $proof.write().proof.recurse(&c, |_| {}, $exp).drop();
-            *$index_map_ref.write() = Some(c);
+            if let Some(new_index) = new_index {
+                *$index_map_ref.write() = Some(new_index);
+            } else {
+                *$index_map_ref.write() = Some(c);
+            }
         }
     };
 }

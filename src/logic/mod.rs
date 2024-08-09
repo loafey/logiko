@@ -125,7 +125,7 @@ impl<T> Logic<T> {
     pub fn next_select(&self, input: &[usize]) -> Option<Vec<usize>> {
         let first = input.first()?;
         let val = self.get(*first)?;
-        None
+        val.next_select(&input[1..])
     }
 }
 impl<T: Display> Logic<T> {
