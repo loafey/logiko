@@ -189,6 +189,7 @@ fn Proof() -> Element {
     let StartTime(start_time) = use_context();
     let WonTime(won_time) = use_context();
     let InfoScreen(mut info_screen) = use_context();
+    // let TermSelector(debug) = use_context();
 
     let mut elapsed = use_signal(|| {
         Local::now()
@@ -307,6 +308,7 @@ fn Proof() -> Element {
                 class: "title",
                 "Puzzle: {day_since_start()}, "
                 span {"{elapsed.read().as_secs()}s"}
+                // span {" {debug:?}"}
             }
 
             div {
@@ -408,8 +410,12 @@ fn Keyboard() -> Element {
                     onclick: move |_| {
                         let index_map = index_map_ref.read();
                         proof.write().proof.make_sub_proof(index_map.as_ref().unwrap());
+                        let new_map = index_map.clone().map(|mut m| {
+                            m.push(0);
+                            m
+                        });
                         drop(index_map);
-                        *index_map_ref.write() = None;
+                        *index_map_ref.write() = new_map;
                     },
                     "↵"
                 }
