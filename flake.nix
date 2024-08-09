@@ -34,22 +34,6 @@
           nativeBuildInputs = with pkgs; [ ] ++ min-pkgs;
         };
 
-        dockerImage = pkgs.dockerTools.buildImage
-          {
-            name = "hello";
-            tag = "latest";
-            created = "now";
-            copyToRoot = pkgs.buildEnv {
-              name = "image-root";
-              paths = [ pkgs.hello ];
-              pathsToLink = [ "/bin" ];
-            };
-
-            architecture = "arm64";
-
-            config.Cmd = [ "/bin/hello" ];
-          };
-
         min-pkgs = with pkgs; [
           pkg-config
           openssl
@@ -64,7 +48,6 @@
 
         packages = {
           fetchy = fetchy;
-          docker = dockerImage;
         };
 
         devShell = (naersk.lib.${system}.override {
