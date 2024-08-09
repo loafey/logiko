@@ -3,7 +3,7 @@
 
 :root {
     --term-font: "Roboto Mono", monospace;
-    --term-padding: 5px 15px 5px 15px;
+    --term-padding: 5px 10px 5px 10px;
     --term-font-size: 1.5rem;
     --term-color: rgb(var(--color-text));
     --term-border-radius: 5px;
@@ -132,6 +132,7 @@ body {
     user-select: none;
     -webkit-user-select: none;
     cursor: pointer;
+    white-space: nowrap;
 
     .term {
         margin-bottom: 0;
@@ -227,8 +228,22 @@ body {
     line-height: 0;
 
     padding-right: 25px;
+    padding-left: 25px;
     background: transparent;
 }
+
+.term-line-number {
+    display: flex;
+    align-items: center;
+    font-family: var(--term-font);
+    font-size: var(--term-font-size);
+    color: var(--term-color);
+    line-height: 0;
+
+    padding-right: 25px;
+    background: transparent;
+}
+
 
 .term-line {
     display: flex;

@@ -135,7 +135,7 @@ fn SubProofComp<T: 'static + PartialEq + std::fmt::Display + Clone>(
                 rsx! {
                     div {
                         class: "term-line-container",
-                        pre { class: "term-rule", "{ind}:" }
+                        pre { class: "term-line-number", "{ind}:" }
                         div {
                             class: "term-line",
                             Term { term: l, outer: true, index: c, unselectable, other: false }
