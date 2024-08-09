@@ -1,14 +1,11 @@
+use super::{FitchProof, Instruction, Line, Logic, SubProof};
+use crate::util::Droppable;
+use itertools::Itertools;
 use std::{
-    collections::{HashMap, HashSet},
+    collections::HashMap,
     fmt::{Debug, Display},
     hash::Hash,
 };
-
-use itertools::Itertools;
-
-use crate::util::Droppable;
-
-use super::{FitchProof, Instruction, Line, Logic, SubProof};
 
 #[derive(Debug, Eq, Clone)]
 struct Position<T> {
