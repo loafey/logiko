@@ -271,6 +271,17 @@ impl<T: Clone + Hash + Eq + Debug + Display> SubProof<T> {
                         *t = Some(Instruction::Pbc(a.index..=b.as_ref().unwrap().index));
                     } else {
                         match &mut **l {
+                            // Not Not intro
+                            Logic::Not(a) if matches!(&**a, Logic::Not(_)) => {
+                                let Logic::Not(a) = &**a else { unreachable!() };
+                                if let Some((a, _)) =
+                                    find_symbol(&(**a).clone().into(), &None, &stack)
+                                {
+                                    *t = Some(Instruction::NotNotIntro(a.index));
+                                } else {
+                                    *t = Some(Instruction::Invalid);
+                                }
+                            }
                             // Not intro
                             Logic::Not(a) => {
                                 if let Some((a, b)) = find_symbol(

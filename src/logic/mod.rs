@@ -28,6 +28,7 @@ pub enum Instruction {
     AndElimRight(usize),                                         // Implemented
     Pbc(RangeInclusive<usize>),                                  // Implemented
     Copy(usize),                                                 // Implemented UNSURE IF WANT
+    NotNotIntro(usize),                                          // Implemented
     NotNotElim(usize),                                           // Implemented
     Lem,                                                         // Implemented
     Premise,                                                     // Implemented
@@ -53,6 +54,7 @@ impl Display for Instruction {
             NotElim(a, b) => write!(f, "¬e {a} {b}"),
             NotNotElim(a) => write!(f, "¬¬e {a}"),
             NotIntro(a) => write!(f, "¬i {}-{}", a.start(), a.end()),
+            NotNotIntro(a) => write!(f, "¬¬i {}", a),
             BottomElim(i) => write!(f, "⊥e {i}"),
             ImplIntro(r) => write!(f, "→i {}-{}", r.start(), r.end()),
             ImplElim(a, b) => write!(f, "→e {a} {b}"),
