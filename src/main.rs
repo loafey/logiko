@@ -403,6 +403,7 @@ fn Keyboard() -> Element {
                     onclick: move |_| {
                         let c = index_map_ref.read().as_ref().unwrap().clone();
                         proof.write().proof.remove_line(&c);
+                        *index_map_ref.write() = None;
                     },
                     "⌫"
                 }
