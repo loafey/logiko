@@ -154,6 +154,21 @@ body {
     box-shadow: 0px 5px 0px 0px rgba(var(--color-fg3), 0.75) !important;
 }
 
+.term-selected::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: calc(100% + 5px);
+    background-color: transparent;
+    border-radius: var(--term-border-radius);
+    outline: white 1px solid;
+    user-select: none;
+    pointer-events: none;
+    -webkit-user-select: none;
+}
+
 .term::before {
     content: "";
     position: absolute;
