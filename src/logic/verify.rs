@@ -235,6 +235,30 @@ impl<T: Clone + Hash + Eq + Debug + Display> SubProof<T> {
                                     *t = Some(Instruction::Invalid);
                                 }
                             }
+                            // And intro
+                            Logic::And(a, b) => {
+                                if let Some((na, nb)) = find_symbol(
+                                    &Position {
+                                        index: 0,
+                                        logic: *a.clone(),
+                                    },
+                                    &None,
+                                    &stack,
+                                )
+                                .and_then(|(a, _)| {
+                                    find_symbol(
+                                        &Position {
+                                            index: 0,
+                                            logic: *b.clone(),
+                                        },
+                                        &None,
+                                        &stack,
+                                    )
+                                    .map(|(b, _)| (a, b))
+                                }) {
+                                    *t = Some(Instruction::AndIntro(na.index, nb.index));
+                                }
+                            }
                             // Impl introduction
                             Logic::Implies(a, b) => {
                                 if let Some((a, b)) = find_symbol(
