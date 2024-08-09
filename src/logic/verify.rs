@@ -1,8 +1,10 @@
 use std::{
-    collections::HashMap,
+    collections::{HashMap, HashSet},
     fmt::{Debug, Display},
     hash::Hash,
 };
+
+use itertools::Itertools;
 
 use crate::util::Droppable;
 
@@ -53,6 +55,46 @@ impl<T> Default for State<T> {
         }
     }
 }
+
+#[allow(clippy::type_complexity)]
+fn find_or_elim<'a, T: Hash + Eq + PartialEq>(
+    nk: &Position<T>,
+    state: &'a [State<T>],
+) -> Option<(
+    &'a Position<T>, // or
+    &'a Position<T>, // left or sub proof start
+    &'a Position<T>, // left or sub proof end
+    &'a Position<T>, // right or sub proof start
+    &'a Position<T>, // right or sub proof start
+)> {
+    let mut valid_subs = Vec::new();
+    let mut ors = Vec::new();
+    for s in &state.iter().rev().collect::<Vec<_>>() {
+        for (k, r) in s.symbols.iter() {
+            if let Some(r) = r {
+                if r == nk {
+                    valid_subs.push((k, r))
+                }
+            } else if let Logic::Or(a, b) = &k.logic {
+                ors.push((k, a, b))
+            }
+        }
+    }
+
+    for v in valid_subs.iter().permutations(2) {
+        let [(a, a_end), (b, b_end)] = &v[..] else {
+            unreachable!()
+        };
+
+        for (o, oa, ob) in &ors {
+            if a.logic == ***oa && b.logic == ***ob {
+                return Some((*o, a, a_end, b, b_end));
+            }
+        }
+    }
+
+    None
+}
 fn find_symbol_in_and<'a, T: Hash + Eq + PartialEq>(
     nk: &Position<T>,
     state: &'a [State<T>],
@@ -96,6 +138,7 @@ impl<T: Clone + Hash + Eq + Debug + Display> SubProof<T> {
     ) -> Result<(Option<Position<T>>, Option<Position<T>>), String> {
         let mut first = None;
         let mut last = None;
+        let mut error_log = String::new();
         let proof_len = self.0.len();
         for (i, line) in self.0.iter_mut().enumerate() {
             let is_first = i == 0;
@@ -157,6 +200,20 @@ impl<T: Clone + Hash + Eq + Debug + Display> SubProof<T> {
                         } else {
                             *t = Some(Instruction::AndElimRight(a.index))
                         }
+                    }
+                    // or elim
+                    else if let Some((o, a, a_end, b, b_end)) = find_or_elim(
+                        &Position {
+                            logic: *l.clone(),
+                            index: 0,
+                        },
+                        &stack,
+                    ) {
+                        *t = Some(Instruction::OrElim(
+                            o.index,
+                            a.index..=a_end.index,
+                            b.index..=b_end.index,
+                        ))
                     }
                     // PBC
                     else if let Some((a, b)) = find_symbol(
@@ -227,8 +284,8 @@ impl<T: Clone + Hash + Eq + Debug + Display> SubProof<T> {
                             }
                             x => {
                                 *t = Some(Instruction::Invalid);
-                                return Err(format!(
-                                    "ERROR: Failed to find suitable rule for term \"{}\"",
+                                error_log.push_str(&format!(
+                                    "ERROR: Failed to find suitable rule for term \"{}\"\n",
                                     x.display(true)
                                 ));
                             }
@@ -245,7 +302,11 @@ impl<T: Clone + Hash + Eq + Debug + Display> SubProof<T> {
             }
         }
 
-        Ok((first, last))
+        if error_log.is_empty() {
+            Ok((first, last))
+        } else {
+            Err(error_log)
+        }
     }
 
     fn has_invalid(&self) -> bool {
