@@ -22,15 +22,15 @@ pub enum Instruction {
     NotIntro(RangeInclusive<usize>),                             // Implemented
     BottomElim(usize),                                           // Implemented
     ImplIntro(RangeInclusive<usize>),                            // Implemented
-    ImplElim(usize, usize),
-    AndIntro(usize, usize),
-    AndElimLeft(usize),         // Implemented
-    AndElimRight(usize),        // Implemented
-    Pbc(RangeInclusive<usize>), // Implemented
-    Copy(usize),                // Implemented UNSURE IF WANT
-    Lem,                        // Implemented
-    Premise,                    // Implemented
-    Invalid,                    // Implemented
+    ImplElim(usize, usize),                                      // Implemented
+    AndIntro(usize, usize),                                      // Implemented
+    AndElimLeft(usize),                                          // Implemented
+    AndElimRight(usize),                                         // Implemented
+    Pbc(RangeInclusive<usize>),                                  // Implemented
+    Copy(usize),                                                 // Implemented UNSURE IF WANT
+    Lem,                                                         // Implemented
+    Premise,                                                     // Implemented
+    Invalid,                                                     // Implemented
 }
 impl Display for Instruction {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -53,7 +53,7 @@ impl Display for Instruction {
             NotIntro(a) => write!(f, "¬i {}-{}", a.start(), a.end()),
             BottomElim(i) => write!(f, "⊥e {i}"),
             ImplIntro(r) => write!(f, "→i {}-{}", r.start(), r.end()),
-            ImplElim(a, b) => write!(f, "→i {a} {b}"),
+            ImplElim(a, b) => write!(f, "→e {a} {b}"),
             Pbc(r) => write!(f, "PBC {}-{}", r.start(), r.end()),
             Copy(i) => write!(f, "copy {i}"),
             Invalid => write!(f, "🛑"),

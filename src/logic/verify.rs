@@ -53,6 +53,37 @@ impl<T> Default for State<T> {
     }
 }
 
+fn find_implication_elim<'a, T: Hash + Eq + PartialEq + Clone>(
+    nk: &Position<T>,
+    state: &'a [State<T>],
+) -> Option<(&'a Position<T>, &'a Position<T>)> {
+    let mut valid_impls = Vec::new();
+    for s in &state.iter().rev().collect::<Vec<_>>() {
+        for (k, r) in s.symbols.iter() {
+            if r.is_none() {
+                if let Logic::Implies(_, b) = &k.logic {
+                    if **b == nk.logic {
+                        valid_impls.push(k);
+                    }
+                }
+            }
+        }
+    }
+
+    for left in valid_impls {
+        if let Some((s, _)) = find_symbol(
+            &Position {
+                index: 0,
+                logic: left.logic.clone(),
+            },
+            &None,
+            state,
+        ) {
+            return Some((left, s));
+        }
+    }
+    None
+}
 #[allow(clippy::type_complexity)]
 fn find_or_elim<'a, T: Hash + Eq + PartialEq>(
     nk: &Position<T>,
@@ -179,6 +210,16 @@ impl<T: Clone + Hash + Eq + Debug + Display> SubProof<T> {
 
                     if matches!(**l, Logic::Empty) {
                         *t = Some(Instruction::Invalid);
+                    }
+                    // Impl elim
+                    else if let Some((a, b)) = find_implication_elim(
+                        &Position {
+                            logic: *l.clone(),
+                            index: 0,
+                        },
+                        &stack,
+                    ) {
+                        *t = Some(Instruction::ImplElim(a.index, b.index));
                     }
                     // Bottom elim
                     else if let Some((a, _)) = find_symbol(&Logic::Bottom.into(), &None, &stack) {

@@ -3,6 +3,7 @@
         "chrono",
         "dioxus",
         "Elim",
+        "impls",
         "Itertools",
         "onclick",
         "wasmtimer"
