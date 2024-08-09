@@ -226,10 +226,11 @@ impl<T: Clone + Hash + Eq + Debug + Display> SubProof<T> {
                                 }
                             }
                             x => {
+                                *t = Some(Instruction::Invalid);
                                 return Err(format!(
                                     "ERROR: Failed to find suitable rule for term \"{}\"",
                                     x.display(true)
-                                ))
+                                ));
                             }
                         }
                     }
