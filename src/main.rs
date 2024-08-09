@@ -227,44 +227,51 @@ fn Proof() -> Element {
     let pres = proof.read().prepositions.clone();
     let pres_len = pres.len();
 
+    let large_bottom;
     let body = if *info_screen.read() {
-        rsx! (div {
-            class: "info-screen",
-            h1 {
-                "logiko"
-            }
-            p {
-                "A puzzle game where you create Fitch-style "
-                "natural deduction proofs under a time limit."
-            }
-            p {
-                "Made over the course of a week while I should have studied for my "
-                "Logic re-exam."
-            }
-            p {
-                "As it was made rather quickly bugs may exist and the game is somewhat "
-                "rough around the edges, and if you find anything that should be improved "
-                "please email me at "
-                a {href:"mailto:bugs@loafey.se", "bugs@loafey.se"}
-                " or at loafey on Discord."
-            }
-            p {
-                "Source code can be found over at "
-                a {
-                    href: "https://github.com/loafey/logic",
-                    "github.com/loafey/logic"
+        large_bottom = false;
+        rsx! (
+            div {
+                class: "info-screen-title",
+                h1 {
+                    "logiko"
                 }
-                " ("
-                span {
-                    "🦀"
-                }
-                ")"
             }
-            p {
-                "I currently have the following on my todo list:"
-                pre {
-                    style: "white-space: pre-wrap",
-                    "{include_str!(\"../notes.md\")}"
+            div {
+                class: "info-screen-text",
+                p {
+                    "A puzzle game where you create Fitch-style "
+                    "natural deduction proofs under a time limit."
+                }
+                p {
+                    "Made over the course of a week while I should have studied for my "
+                    "Logic re-exam."
+                }
+                p {
+                    "As it was made rather quickly bugs may exist and the game is somewhat "
+                    "rough around the edges, and if you find anything that should be improved "
+                    "please email me at "
+                    a {href:"mailto:bugs@loafey.se", "bugs@loafey.se"}
+                    " or at loafey on Discord."
+                }
+                p {
+                    "Source code can be found over at "
+                    a {
+                        href: "https://github.com/loafey/logic",
+                        "github.com/loafey/logic"
+                    }
+                    " ("
+                    span {
+                        "🦀"
+                    }
+                    ")"
+                }
+                p {
+                    "I currently have the following on my todo list:"
+                    pre {
+                        style: "white-space: pre-wrap",
+                        "{include_str!(\"../notes.md\")}"
+                    }
                 }
             }
 
@@ -272,8 +279,9 @@ fn Proof() -> Element {
                 onclick: move |_| info_screen.set(false),
                 "Close"
             }
-        })
+        )
     } else if let Some(time) = &*won_time.read() {
+        large_bottom = true;
         let win_script = format!(
             r#"navigator.clipboard.writeText("🧩 I completed Logiko#{} in {time}s 🧩\nI used X lines, X sub proofs and X terms")"#,
             day_since_start()
@@ -301,6 +309,7 @@ fn Proof() -> Element {
             }
         }
     } else {
+        large_bottom = true;
         let ErrorField(error_field) = use_context();
         let error = if let Some(ef) = &*error_field.read() {
             rsx!(pre {
@@ -348,10 +357,12 @@ fn Proof() -> Element {
             Keyboard {}
         }
     };
-    rsx!(div {
-        class: "app-container",
-        {body}
-    })
+    let class = if large_bottom {
+        "app-container"
+    } else {
+        "app-container app-container-info"
+    };
+    rsx!(div { class, {body} })
 }
 
 macro_rules! update_term {
