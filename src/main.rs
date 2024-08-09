@@ -196,7 +196,7 @@ fn Proof() -> Element {
     let StartTime(start_time) = use_context();
     let WonTime(won_time) = use_context();
     let InfoScreen(mut info_screen) = use_context();
-    let TermSelector(debug) = use_context();
+    // let TermSelector(debug) = use_context();
 
     let mut elapsed = use_signal(|| {
         Local::now()
@@ -315,7 +315,7 @@ fn Proof() -> Element {
                 class: "title",
                 "Puzzle: {day_since_start()}, "
                 span {"{elapsed.read().as_secs()}s"}
-                span {" {debug:?}"}
+                // span {" {debug:?}"}
             }
 
             div {
