@@ -282,9 +282,13 @@ fn Proof() -> Element {
         )
     } else if let Some(time) = &*won_time.read() {
         large_bottom = true;
+        let stats = proof.read().stats();
         let win_script = format!(
-            r#"navigator.clipboard.writeText("🧩 I completed Logiko#{} in {time}s 🧩\nI used X lines, X sub proofs and X terms")"#,
-            day_since_start()
+            r#"navigator.clipboard.writeText("🧩 I completed Logiko#{} in {time}s 🧩\nI used {} lines, {} sub proofs and {} terms")"#,
+            day_since_start(),
+            stats.lines,
+            stats.sub_proofs,
+            stats.terms
         );
 
         rsx! {

@@ -1,6 +1,6 @@
 use std::{
     fmt::{Display, Write},
-    ops::RangeInclusive,
+    ops::{AddAssign, RangeInclusive},
 };
 
 pub type Ptr<T> = Box<T>;
@@ -87,6 +87,18 @@ pub enum Logic<T> {
     Empty,
 }
 impl<T> Logic<T> {
+    pub fn size(&self) -> usize {
+        match self {
+            Variable(_) => 1,
+            And(a, b) => 1 + a.size() + b.size(),
+            Implies(a, b) => 1 + a.size() + b.size(),
+            Not(a) => 1 + a.size(),
+            Or(a, b) => 1 + a.size() + b.size(),
+            Bottom => 1,
+            Empty => 0,
+        }
+    }
+
     pub fn get_mut(&mut self, index: usize) -> Option<&mut Self> {
         match self {
             Variable(_) => None,
@@ -200,6 +212,28 @@ impl<T> SubProof<T> {
             Line::Log(l, _) => l.recurse(&index_map[1..], term_func),
         }
     }
+
+    pub fn stats(&self) -> Stats {
+        let mut s = Stats {
+            lines: self.0.len(),
+            terms: 0,
+            sub_proofs: 0,
+        };
+
+        for line in &self.0 {
+            match line {
+                Sub(ns) => {
+                    s.sub_proofs += 1;
+                    s += ns.stats();
+                }
+                Log(t, _) => {
+                    s.terms += t.size();
+                }
+            }
+        }
+
+        s
+    }
 }
 impl<T: Display> SubProof<T> {
     pub fn display(&self, index: &mut usize, depth: usize) -> String {
@@ -230,6 +264,19 @@ impl<T: Display> SubProof<T> {
     }
 }
 
+pub struct Stats {
+    pub terms: usize,
+    pub lines: usize,
+    pub sub_proofs: usize,
+}
+impl AddAssign for Stats {
+    fn add_assign(&mut self, rhs: Self) {
+        self.terms += rhs.terms;
+        self.lines += rhs.lines;
+        self.sub_proofs += rhs.sub_proofs;
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct FitchProof<T> {
     #[serde(default)]
@@ -238,6 +285,10 @@ pub struct FitchProof<T> {
     pub result: Ptr<Logic<T>>,
 }
 impl<T> FitchProof<T> {
+    pub fn stats(&self) -> Stats {
+        self.proof.stats()
+    }
+
     pub fn next_select(&mut self, input: &[usize]) -> Option<Vec<usize>> {
         if input.is_empty() {
             return None;
