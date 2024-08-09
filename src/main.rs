@@ -230,11 +230,12 @@ fn Proof() -> Element {
     let large_bottom;
     let body = if *info_screen.read() {
         large_bottom = false;
+        let v = env!("CARGO_PKG_VERSION");
         rsx! (
             div {
                 class: "info-screen-title",
                 h1 {
-                    "logiko"
+                    "logiko v{v}"
                 }
             }
             div {

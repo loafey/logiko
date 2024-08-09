@@ -1,11 +1,11 @@
 [application]
-name = "Logiko"
+name = "logiko"
 default_platform = "web"
 out_dir = "dist"
 asset_dir = "public"
 
 [web.app]
-title = "Logiko"
+title = "logiko"
 # base_path = "logiko"
 
 
