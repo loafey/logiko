@@ -359,6 +359,9 @@ impl<T: Clone + Hash + Eq + Debug + Display> SubProof<T> {
                                     *t = Some(Instruction::Invalid)
                                 }
                             }
+                            Logic::Variable(_) => {
+                                *t = Some(Instruction::Invalid);
+                            }
                             x => {
                                 *t = Some(Instruction::Invalid);
                                 error_log.push_str(&format!(
