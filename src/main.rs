@@ -258,8 +258,8 @@ fn Proof() -> Element {
                 p {
                     "Source code can be found over at "
                     a {
-                        href: "https://github.com/loafey/logic",
-                        "github.com/loafey/logic"
+                        href: "https://github.com/loafey/logiko",
+                        "github.com/loafey/logiko"
                     }
                     " ("
                     span {
