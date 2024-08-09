@@ -1,0 +1,38 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap');
+
+body {
+    background-color: rgb(11, 19, 43);
+}
+
+#main:empty::before {
+    display: block;
+    text-align: center;
+    padding-top: 6rem;
+    content: "Loading...";
+    color: white;
+    font-family: "Quicksand", sans-serif;
+    font-size: 2rem;
+}
+
+#main:empty::after {
+    display: block;
+    text-align: center;
+    content: "🦀";
+    filter: hue-rotate(300deg) contrast(100%) brightness(3);
+    animation: crabby 3s infinite;
+    font-size: 5em;
+}
+
+@keyframes crabby {
+    0% {
+        filter: hue-rotate(220deg) contrast(100%) brightness(3);
+    }
+
+    50% {
+        filter: hue-rotate(300deg) contrast(100%) brightness(3);
+    }
+
+    100% {
+        filter: hue-rotate(220deg) contrast(100%) brightness(3);
+    }
+}

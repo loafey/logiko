@@ -1,0 +1,16 @@
+[application]
+name = "Logiko"
+default_platform = "web"
+out_dir = "dist"
+asset_dir = "public"
+
+[web.app]
+title = "Logiko"
+# base_path = "logiko"
+
+
+[web.resource.dev]
+style = [
+   "base-style.css",
+]
+
