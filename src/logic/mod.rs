@@ -75,7 +75,6 @@ pub enum Logic<T> {
     Bottom,
     Empty,
 }
-
 impl<T> Logic<T> {
     pub fn get_mut(&mut self, index: usize) -> Option<&mut Self> {
         match self {
@@ -94,8 +93,25 @@ impl<T> Logic<T> {
             Empty => None,
         }
     }
-}
-impl<T> Logic<T> {
+
+    pub fn get(&self, index: usize) -> Option<&Self> {
+        match self {
+            Variable(_) => None,
+            And(a, _) if index == 0 => Some(a),
+            And(_, a) if index == 1 => Some(a),
+            And(_, _) => None,
+            Implies(a, _) if index == 0 => Some(a),
+            Implies(_, a) if index == 1 => Some(a),
+            Implies(_, _) => None,
+            Not(a) => Some(a),
+            Or(a, _) if index == 0 => Some(a),
+            Or(_, a) if index == 1 => Some(a),
+            Or(_, _) => None,
+            Bottom => None,
+            Empty => None,
+        }
+    }
+
     fn recurse<R>(&mut self, index_map: &[usize], term_func: fn(&mut Logic<T>) -> R) -> Option<R> {
         let Some(index) = index_map.first().copied() else {
             return Some(term_func(self));
@@ -104,6 +120,12 @@ impl<T> Logic<T> {
         let child = self.get_mut(index)?;
         let res = child.recurse(&index_map[1..], term_func)?;
         Some(res)
+    }
+
+    pub fn next_select(&self, input: &[usize]) -> Option<Vec<usize>> {
+        let first = input.first()?;
+        let val = self.get(*first)?;
+        None
     }
 }
 impl<T: Display> Logic<T> {
@@ -133,6 +155,15 @@ impl<T> Default for SubProof<T> {
     }
 }
 impl<T> SubProof<T> {
+    pub fn next_select(&self, input: &[usize]) -> Option<Vec<usize>> {
+        let first = input.first()?;
+        let val = self.0.get(*first)?;
+        match val {
+            Sub(s) => s.next_select(&input[1..]),
+            Log(l, _) => l.next_select(&input[1..]),
+        }
+    }
+
     pub fn make_sub_proof(&mut self, index_map: &[usize]) {
         match index_map {
             [i] => {
@@ -227,6 +258,11 @@ pub struct FitchProof<T> {
     pub proof: SubProof<T>,
     pub prepositions: Vec<Logic<T>>,
     pub result: Ptr<Logic<T>>,
+}
+impl<T> FitchProof<T> {
+    pub fn next_select(&self, input: &[usize]) -> Option<Vec<usize>> {
+        self.proof.next_select(input)
+    }
 }
 impl<T: Display + Clone> Display for FitchProof<T> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {

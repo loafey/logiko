@@ -83,7 +83,11 @@ fn Term<T: 'static + PartialEq + std::fmt::Display + Clone>(
         }
     };
 
-    if matches!(&*term, Logic::Variable(_) | Logic::Not(_) | Logic::Empty) || outer {
+    if matches!(
+        &*term,
+        Logic::Variable(_) | Logic::Not(_) | Logic::Empty | Logic::Bottom
+    ) || outer
+    {
         rsx!(div {
             onclick: on_click,
             class: class,
