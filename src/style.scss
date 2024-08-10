@@ -50,6 +50,10 @@ button {
     transition-duration: var(--transition-duration);
 }
 
+.remove-sub-proof-button:focus {
+    background-color: red;
+}
+
 button:disabled,
 button[disabled] {
     opacity: 0.4;

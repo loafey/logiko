@@ -6,6 +6,7 @@
         "impls",
         "Itertools",
         "onclick",
+        "ondoubleclick",
         "wasmtimer"
     ]
 }
