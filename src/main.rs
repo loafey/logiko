@@ -181,7 +181,7 @@ fn app() -> Element {
     use_context_provider(|| ErrorField(Signal::new(None)));
     use_context_provider(|| TermSelector(Signal::new(Some(vec![0]))));
     use_context_provider(|| StartTime(Local::now()));
-    use_context_provider(|| InfoScreen(Signal::new(true)));
+    use_context_provider(|| InfoScreen(Signal::new(false)));
     use_context_provider(|| WonTime(Signal::new(None)));
     let style = grass::include!("src/style.scss");
 
