@@ -414,15 +414,15 @@ impl<T: Clone + Hash + Eq + Debug + Display> SubProof<T> {
     }
 
     fn has_invalid(&self) -> bool {
-        let mut res = true;
+        let mut res = false;
         for l in &self.0 {
             match l {
-                Line::Sub(s) => res &= s.has_invalid(),
+                Line::Sub(s) => res = res || s.has_invalid(),
                 Line::Log(_, t) => {
-                    res &= t
-                        .as_ref()
-                        .map(|a| *a == Instruction::Invalid)
-                        .unwrap_or_default()
+                    res = res
+                        || t.as_ref()
+                            .map(|a| matches!(*a, Instruction::Invalid))
+                            .unwrap_or_default()
                 }
             }
         }
