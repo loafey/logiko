@@ -4,7 +4,5 @@
   * Allow user to copy a Latex version of the proof
   * Allow user to copy a Typst version
 * Add cookies to avoid cheating.
-* Make button behavior clearer.
 * Add more puzzles
-* Disable sub proof and remove buttons when working on inner terms.
 * Undo button
