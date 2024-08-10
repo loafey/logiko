@@ -149,7 +149,7 @@ fn find_symbol<'a, T: Hash + Eq + PartialEq>(
                 if v == nv {
                     return Some((k, v));
                 }
-            } else {
+            } else if nv.is_none() && v.is_none() {
                 return Some((k, v));
             }
         }
@@ -176,8 +176,9 @@ impl<T: Clone + Hash + Eq + Debug + Display> SubProof<T> {
                     let mut new_stack = stack.clone();
                     new_stack.push(State::default().can_assume());
                     let (f, l) = s.verify(index, new_stack)?;
-                    if let Some(f) = f {
-                        stack.last_mut().unwrap().symbols.insert(f, l);
+                    if let Some((f, l)) = f.and_then(|f| l.map(|l| (f, l))) {
+                        let last = stack.last_mut().unwrap();
+                        last.symbols.insert(f, Some(l));
                     }
                 }
                 Line::Log(l, t) => {
@@ -359,7 +360,10 @@ impl<T: Clone + Hash + Eq + Debug + Display> SubProof<T> {
                             Logic::Bottom => {
                                 let mut valid = false;
                                 'outer: for s in &stack {
-                                    for term in s.symbols.keys() {
+                                    for (term, o) in s.symbols.iter() {
+                                        if o.is_some() {
+                                            continue;
+                                        }
                                         if let Some((n_term, _)) = find_symbol(
                                             &Logic::Not(term.logic.clone().into()).into(),
                                             &None,
