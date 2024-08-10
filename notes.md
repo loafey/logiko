@@ -6,3 +6,4 @@
 * Add cookies to avoid cheating.
 * Make button behavior clearer.
 * Add more puzzles
+* Disable sub proof and remove buttons when working on inner terms.
