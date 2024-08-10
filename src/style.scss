@@ -240,7 +240,7 @@ body {
     font-family: var(--term-font);
     font-size: var(--term-font-size);
     color: var(--term-color);
-    line-height: 0;
+    white-space: nowrap;
 
     padding-right: 25px;
     padding-left: 25px;
