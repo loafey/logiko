@@ -371,7 +371,7 @@ fn Proof() -> Element {
 }
 
 macro_rules! update_term {
-    ($index_map_ref:expr, $proof:expr, $exp:expr) => {
+    ($check:expr, $index_map_ref:expr, $proof:expr, $exp:expr) => {
         move |_| {
             let c = $index_map_ref.read().as_ref().unwrap().clone();
             $proof.write().proof.recurse(&c, |_| {}, $exp).drop();
@@ -380,6 +380,7 @@ macro_rules! update_term {
             } else {
                 *$index_map_ref.write() = Some(c);
             }
+            $check();
         }
     };
 }
@@ -398,7 +399,7 @@ fn Keyboard() -> Element {
         |_| SelectType::SubProof,
         |_| SelectType::Term,
     )?;
-    let check = move |_: Event<MouseData>| {
+    let mut check = move || {
         match proof.write().verify() {
             Ok(b) => {
                 if b {
@@ -431,6 +432,7 @@ fn Keyboard() -> Element {
                         let c = index_map_ref.read().as_ref().unwrap().clone();
                         proof.write().proof.remove_line(&c);
                         *index_map_ref.write() = None;
+                        check();
                     },
                     "⌫"
                 }
@@ -444,57 +446,57 @@ fn Keyboard() -> Element {
                         });
                         drop(index_map);
                         *index_map_ref.write() = new_map;
+                        check();
                     },
                     "↵"
                 }
                 button {
-                    onclick: update_term!(index_map_ref, proof, |l| *l = Logic::And(
+                    onclick: update_term!(check, index_map_ref, proof, |l| *l = Logic::And(
                         Logic::Empty.into(),
                         Logic::Empty.into(),
                     )),
                     "∧"
                 }
                 button {
-                    onclick: update_term!(index_map_ref, proof, |l| *l = Logic::Or(
+                    onclick: update_term!(check, index_map_ref, proof, |l| *l = Logic::Or(
                         Logic::Empty.into(),
                         Logic::Empty.into(),
                     )),
                     "∨"
                 }
                 button {
-                    onclick: update_term!(index_map_ref, proof, |l| *l = Logic::Implies(
+                    onclick: update_term!(check, index_map_ref, proof, |l| *l = Logic::Implies(
                         Logic::Empty.into(),
                         Logic::Empty.into(),
                     )),
                     "→"
                 }
                 button {
-                    onclick: update_term!(index_map_ref, proof, |l| *l = Logic::Not(
+                    onclick: update_term!(check, index_map_ref, proof, |l| *l = Logic::Not(
                         Logic::Empty.into(),
                     )),
                     "¬"
                 }
                 button {
-                    onclick: update_term!(index_map_ref, proof, |l| *l = Logic::Bottom),
+                    onclick: update_term!(check, index_map_ref, proof, |l| *l = Logic::Bottom),
                     "⊥"
                 }
                 button {
-                    onclick: update_term!(index_map_ref, proof, |l| *l = Logic::Variable("p")),
+                    onclick: update_term!(check, index_map_ref, proof, |l| *l = Logic::Variable("p")),
                     "p"
                 }
                 button {
-                    onclick: update_term!(index_map_ref, proof, |l| *l = Logic::Variable("q")),
+                    onclick: update_term!(check, index_map_ref, proof, |l| *l = Logic::Variable("q")),
                     "q"
                 }
                 button {
-                    onclick: update_term!(index_map_ref, proof, |l| *l = Logic::Variable("r")),
+                    onclick: update_term!(check, index_map_ref, proof, |l| *l = Logic::Variable("r")),
                     "r"
                 }
                 button {
-                    onclick: update_term!(index_map_ref, proof, |l| *l = Logic::Variable("s")),
+                    onclick: update_term!(check, index_map_ref, proof, |l| *l = Logic::Variable("s")),
                     "s"
                 }
-                button { onclick: check, "🔎" }
                 button {
                     onclick: move |_| {
                         info_screen.set(true);
@@ -503,7 +505,7 @@ fn Keyboard() -> Element {
                 }
             }
         }),
-        SelectType::SubProof => rsx! { button { onclick: check, "🔎" }},
+        SelectType::SubProof => rsx! { button { onclick: move |_| check(), "🔎" }},
     }
 }
 
