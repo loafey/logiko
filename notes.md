@@ -5,3 +5,5 @@
   * Allow user to copy a Typst version
 * Add cookies to avoid cheating.
 * Make button behavior clearer.
+* Maybe make the verification run at every proof edit.
+* Add more puzzles
