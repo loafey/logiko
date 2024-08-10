@@ -4,10 +4,12 @@ extern crate log;
 
 use chrono::{DateTime, Local};
 use dioxus::prelude::*;
+use gui::GuiInfoScreen;
 use std::fmt::Write;
 mod logic;
 use logic::{empty, FitchProof, Line, Logic, Ptr, SelectType, SubProof};
 use util::Droppable;
+mod gui;
 mod util;
 
 fn main() {
@@ -195,7 +197,7 @@ fn Proof() -> Element {
     let GlobalProof(proof) = use_context();
     let StartTime(start_time) = use_context();
     let WonTime(won_time) = use_context();
-    let InfoScreen(mut info_screen) = use_context();
+    let InfoScreen(info_screen) = use_context();
     // let TermSelector(debug) = use_context();
 
     let mut elapsed = use_signal(|| {
@@ -230,57 +232,7 @@ fn Proof() -> Element {
     let large_bottom;
     let body = if *info_screen.read() {
         large_bottom = false;
-        let v = env!("CARGO_PKG_VERSION");
-        rsx! (
-            div {
-                class: "info-screen-title",
-                h1 {
-                    "logiko v{v}"
-                }
-            }
-            div {
-                class: "info-screen-text",
-                p {
-                    "A puzzle game where you create Fitch-style "
-                    "natural deduction proofs under a time limit."
-                }
-                p {
-                    "Made over the course of a week while I should have studied for my "
-                    "Logic re-exam."
-                }
-                p {
-                    "As it was made rather quickly bugs may exist and the game is somewhat "
-                    "rough around the edges, and if you find anything that should be improved "
-                    "please email me at "
-                    a {href:"mailto:bugs@loafey.se", "bugs@loafey.se"}
-                    " or at loafey on Discord."
-                }
-                p {
-                    "Source code can be found over at "
-                    a {
-                        href: "https://github.com/loafey/logiko",
-                        "github.com/loafey/logiko"
-                    }
-                    " ("
-                    span {
-                        "🦀"
-                    }
-                    ")"
-                }
-                p {
-                    "I currently have the following on my todo list:"
-                    pre {
-                        style: "white-space: pre-wrap",
-                        "{include_str!(\"../notes.md\")}"
-                    }
-                }
-            }
-
-            button {
-                onclick: move |_| info_screen.set(false),
-                "Close"
-            }
-        )
+        rsx!(GuiInfoScreen {})
     } else if let Some(time) = &*won_time.read() {
         large_bottom = true;
         let stats = proof.read().stats();
