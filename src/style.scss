@@ -27,9 +27,11 @@
 
     --button-margin: 5px;
     --button-border: solid white 5px;
+    --transition-duration: 0.1s;
 }
 
 * {
+    transition-duration: var(--transition-duration);
     color: rgb(var(--color-text));
 }
 
@@ -44,6 +46,14 @@ button {
     margin: var(--button-margin);
     cursor: pointer;
     border: var(--button-border);
+    opacity: 1;
+    transition-duration: var(--transition-duration);
+}
+
+button:disabled,
+button[disabled] {
+    opacity: 0.4;
+    cursor: not-allowed;
 }
 
 

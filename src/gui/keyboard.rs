@@ -31,11 +31,17 @@ pub fn Keyboard() -> Element {
     let StartTime(start_time) = use_context();
     let InfoScreen(mut info_screen) = use_context();
 
-    let res = proof.write().proof.recurse(
-        index_map_ref.read().as_ref()?,
-        |_| SelectType::SubProof,
-        |_| SelectType::Term,
-    )?;
+    let (res, is_outer) = {
+        let mut p = proof.write();
+        let res = p.proof.recurse(
+            index_map_ref.read().as_ref()?,
+            |_| SelectType::SubProof,
+            |_| SelectType::Term,
+        )?;
+        let outer = p.proof.is_outer_term(index_map_ref.read().as_ref()?);
+        (res, outer)
+    };
+
     let mut check = move || {
         match proof.write().verify() {
             Ok(b) => {
@@ -71,6 +77,7 @@ pub fn Keyboard() -> Element {
                         *index_map_ref.write() = None;
                         check();
                     },
+                    disabled: !is_outer,
                     "⌫"
                 }
                 button {
@@ -85,6 +92,7 @@ pub fn Keyboard() -> Element {
                         *index_map_ref.write() = new_map;
                         check();
                     },
+                    disabled: !is_outer,
                     "↵"
                 }
                 button {

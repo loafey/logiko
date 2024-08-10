@@ -190,6 +190,20 @@ impl<T> SubProof<T> {
         }
     }
 
+    pub fn is_outer_term(&self, index_map: &[usize]) -> bool {
+        match index_map {
+            [i] => *i < self.0.len() && matches!(&self.0[*i], Line::Log(_, _)),
+            [i, xs @ ..] => {
+                if let Some(Sub(s)) = self.0.get(*i) {
+                    s.is_outer_term(xs)
+                } else {
+                    false
+                }
+            }
+            [] => false,
+        }
+    }
+
     pub fn len(&self) -> usize {
         self.0
             .iter()
