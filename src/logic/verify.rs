@@ -443,7 +443,7 @@ impl<T: Clone + Hash + Eq + Debug + Display> FitchProof<T> {
 
         self.proof
             .verify(&mut self.prepositions.len(), vec![state])?;
-        Ok(!self.proof.has_invalid()
+        let ok = !self.proof.has_invalid()
             && self
                 .proof
                 .0
@@ -452,6 +452,7 @@ impl<T: Clone + Hash + Eq + Debug + Display> FitchProof<T> {
                     Line::Sub(_) => false,
                     Line::Log(l, _) => **l == *self.result,
                 })
-                .unwrap_or_default())
+                .unwrap_or_default();
+        Ok(ok)
     }
 }

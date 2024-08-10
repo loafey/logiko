@@ -4,7 +4,7 @@ extern crate log;
 
 use chrono::{DateTime, Local};
 use dioxus::prelude::*;
-use gui::{GuiInfoScreen, Keyboard, SubProofComp, Term};
+use gui::{GuiInfoScreen, Keyboard, SubProofComp, Term, WinScreen};
 mod logic;
 use logic::{empty, FitchProof};
 mod gui;
@@ -58,36 +58,7 @@ fn MainApp() -> Element {
         rsx!(GuiInfoScreen {})
     } else if let Some(time) = &*won_time.read() {
         large_bottom = true;
-        let stats = proof.read().stats();
-        let win_script = format!(
-            r#"navigator.clipboard.writeText("🧩 I completed Logiko#{} in {time}s 🧩\nI used {} lines, {} sub proofs and {} terms\n\nhttps://loafey.se/logiko/")"#,
-            day_since_start(),
-            stats.lines,
-            stats.sub_proofs,
-            stats.terms
-        );
-
-        rsx! {
-            div {
-                class: "title",
-                "Congrats!"
-            }
-
-            div {
-                class: "title",
-                "You won in: {time}s"
-            }
-
-            div {
-                class: "result-container",
-                button {
-                    onclick: move |_| {
-                        eval(&win_script);
-                    },
-                    "Copy Result"
-                }
-            }
-        }
+        rsx!(WinScreen { time: *time })
     } else {
         large_bottom = true;
         let ErrorField(error_field) = use_context();

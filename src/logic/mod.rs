@@ -33,6 +33,7 @@ pub enum Instruction {
     Lem,                                                         // Implemented
     Premise,                                                     // Implemented
     Invalid,                                                     // Implemented
+    Finish,                                                      // Implemented
 }
 impl Display for Instruction {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -63,6 +64,7 @@ impl Display for Instruction {
             Invalid => write!(f, "🛑"),
             Lem => write!(f, "LEM"),
             Premise => write!(f, "pre"),
+            Finish => write!(f, "🎉"),
         }
     }
 }

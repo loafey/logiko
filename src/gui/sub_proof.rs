@@ -136,7 +136,7 @@ pub fn SubProofComp<T: 'static + PartialEq + std::fmt::Display + Clone>(
         }
     });
 
-    let remove_button = if !index_map.is_empty() {
+    let remove_button = if !index_map.is_empty() && !unselectable {
         rsx!(button {
             class: "remove-sub-proof-button",
             ondoubleclick: {
@@ -152,17 +152,12 @@ pub fn SubProofComp<T: 'static + PartialEq + std::fmt::Display + Clone>(
         rsx!()
     };
 
-    rsx!(div {
-        class: "sub-proof",
-        for line in lines {
-            {line}
-        }
-        div {
-            {remove_button}
-            button {
-                onclick: move |_| {
-                    let mut c = index_map.clone();
-                    let pos = proof.write().proof.recurse(&index_map, |s| {
+    let add_button = if !unselectable {
+        rsx!(button {
+            onclick: {
+                let mut c = index_map.clone();
+                move |_| {
+                    let pos = proof.write().proof.recurse(&c, |s| {
                         let pos = s.0.len();
                         s.0.push(
                             Line::Log(Logic::Empty.into(), None)
@@ -173,9 +168,22 @@ pub fn SubProofComp<T: 'static + PartialEq + std::fmt::Display + Clone>(
                         c.push(pos);
                     }
                     *index_map_ref.write() = Some(c.clone());
-                },
-                "+"
-            }
+                }
+            },
+            "+"
+        })
+    } else {
+        rsx!()
+    };
+
+    rsx!(div {
+        class: "sub-proof",
+        for line in lines {
+            {line}
+        }
+        div {
+            {remove_button}
+            {add_button}
         }
     })
 }
