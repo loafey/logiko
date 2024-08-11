@@ -5,8 +5,12 @@
         "Elim",
         "impls",
         "Itertools",
+        "logicproof",
         "onclick",
         "ondoubleclick",
+        "rightarrow",
+        "subproof",
+        "typst",
         "wasmtimer"
     ]
 }

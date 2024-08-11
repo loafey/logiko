@@ -61,25 +61,25 @@ fn find_implication_elim<'a, T: Hash + Eq + PartialEq + Clone>(
     for s in &state.iter().rev().collect::<Vec<_>>() {
         for (k, r) in s.symbols.iter() {
             if r.is_none() {
-                if let Logic::Implies(_, b) = &k.logic {
+                if let Logic::Implies(a, b) = &k.logic {
                     if **b == nk.logic {
-                        valid_impls.push(k);
+                        valid_impls.push((a, k));
                     }
                 }
             }
         }
     }
 
-    for left in valid_impls {
+    for (left, k) in valid_impls {
         if let Some((s, _)) = find_symbol(
             &Position {
                 index: 0,
-                logic: left.logic.clone(),
+                logic: *left.clone(),
             },
             &None,
             state,
         ) {
-            return Some((left, s));
+            return Some((k, s));
         }
     }
     None

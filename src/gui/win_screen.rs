@@ -20,7 +20,11 @@ pub fn WinScreen(time: usize) -> Element {
         stats.sub_proofs,
         stats.terms
     );
-    let copy_rust_tree = format!(r#"navigator.clipboard.writeText(`{:#?}`)"#, proof.read());
+    let copy_text_tree = format!(r#"navigator.clipboard.writeText(`{}`)"#, proof.read());
+    let copy_latex_tree = format!(
+        r#"navigator.clipboard.writeText({:?})"#,
+        proof.read().latex()
+    );
 
     rsx! {
         div {
@@ -44,9 +48,16 @@ pub fn WinScreen(time: usize) -> Element {
 
             button {
                 onclick: move |_| {
-                    eval(&copy_rust_tree);
+                    eval(&copy_text_tree);
                 },
-                "Copy Rust Tree"
+                "Copy Proof"
+            }
+
+            button {
+                onclick: move |_| {
+                    eval(&copy_latex_tree);
+                },
+                "Copy LaTeX Tree"
             }
 
             div {

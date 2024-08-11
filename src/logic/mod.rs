@@ -33,7 +33,37 @@ pub enum Instruction {
     Lem,                                                         // Implemented
     Premise,                                                     // Implemented
     Invalid,                                                     // Implemented
-    Finish,                                                      // Implemented
+}
+impl Instruction {
+    pub fn latex(&self) -> String {
+        match self {
+            Assumption => "assumption".to_string(),
+            OrIntroLeft(i) => format!("$\\lor_{{i1}}$ {i}"),
+            OrIntroRight(i) => format!("$\\lor_{{i2}}$ {i}"),
+            OrElim(i, a, b) => format!(
+                "$\\lor_{{e}}$ {i} {}-{} {}-{}",
+                a.start(),
+                a.end(),
+                b.start(),
+                b.end()
+            ),
+            NotElim(a, b) => format!("$\\neg_{{e}}$ {a} {b}"),
+            NotIntro(i) => format!("$\\neg_{{i}}$ {}-{}", i.start(), i.end()),
+            BottomElim(i) => format!("$\\bot_{{i}}$ {i}"),
+            ImplIntro(i) => format!("$\\rightarrow_{{i}}$ {}-{}", i.start(), i.end()),
+            ImplElim(a, b) => format!("$\\rightarrow_{{e}}$ {} {}", a, b),
+            AndIntro(a, b) => format!("$\\land_{{i}}$ {} {}", a, b),
+            AndElimLeft(i) => format!("$\\rightarrow_{{e1}}$ {}", i),
+            AndElimRight(i) => format!("$\\rightarrow_{{e2}}$ {}", i),
+            Pbc(i) => format!("PBC {}-{}", i.start(), i.end()),
+            Copy(i) => format!("COPY {i}"),
+            NotNotIntro(i) => format!("$\\neg\\neg_{{i}}$ {}", i),
+            NotNotElim(i) => format!("$\\neg\\neg_{{e}}$ {}", i),
+            Lem => "LEM".to_string(),
+            Premise => "premise".to_string(),
+            Invalid => "invalid".to_string(),
+        }
+    }
 }
 impl Display for Instruction {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -64,7 +94,6 @@ impl Display for Instruction {
             Invalid => write!(f, "🛑"),
             Lem => write!(f, "LEM"),
             Premise => write!(f, "pre"),
-            Finish => write!(f, "🎉"),
         }
     }
 }
@@ -143,6 +172,23 @@ impl<T: Display> Logic<T> {
             Or(a, b) => format!("{} ∨ {}", a.display(false), b.display(false)),
             Bottom => "⊥".to_string(),
             Empty => "×".to_string(),
+        };
+        if outer || matches!(self, Variable(_) | Bottom) {
+            res
+        } else {
+            format!("({res})")
+        }
+    }
+
+    pub fn latex(&self, outer: bool) -> String {
+        let res = match self {
+            Variable(v) => format!("{v}"),
+            And(a, b) => format!("{} \\land {}", a.latex(false), b.latex(false)),
+            Implies(a, b) => format!("{} \\rightarrow {}", a.latex(false), b.latex(false)),
+            Not(a) => format!("\\neg {}", a.latex(false)),
+            Or(a, b) => format!("{} \\lor {}", a.latex(false), b.latex(false)),
+            Bottom => "\\bot".to_string(),
+            Empty => "X".to_string(),
         };
         if outer || matches!(self, Variable(_) | Bottom) {
             res
@@ -282,7 +328,32 @@ impl<T: Display> SubProof<T> {
         }
         res
     }
+
+    pub fn latex(&self, depth: usize) -> String {
+        let mut s = String::new();
+        let len = self.0.len();
+        for (i, l) in self.0.iter().enumerate() {
+            let last = i + 1 == len;
+            match l {
+                Sub(sb) => s.push_str(&format!(
+                    "\n{s}\\begin{{subproof}}{sb}\n{s}\\end{{subproof}}",
+                    s = SPACING.repeat(depth),
+                    sb = sb.latex(depth + 1)
+                )),
+                Log(l, r) => s.push_str(&format!(
+                    "\n{}{} & {}{}",
+                    SPACING.repeat(depth),
+                    l.latex(true),
+                    r.as_ref().map(|i| i.latex()).unwrap_or_default(),
+                    if !last { "\\\\" } else { "" }
+                )),
+            }
+        }
+        s
+    }
 }
+
+const SPACING: &str = "    ";
 
 pub struct Stats {
     pub terms: usize,
@@ -333,6 +404,18 @@ impl<T> FitchProof<T> {
             new_input.push(last + 1);
             self.next_select(&new_input)
         }
+    }
+}
+impl<T: Display> FitchProof<T> {
+    pub fn latex(&self) -> String {
+        let sub_proofs = self.stats().sub_proofs;
+        let mut s = format!("\\begin{{logicproof}}{{{sub_proofs}}}");
+        s.push_str(&self.proof.latex(1));
+        s.push_str("\n\\end{logicproof}");
+        s
+    }
+    pub fn typst(&self) -> String {
+        String::new()
     }
 }
 impl<T: Display + Clone> Display for FitchProof<T> {
