@@ -414,9 +414,6 @@ impl<T: Display> FitchProof<T> {
         s.push_str("\n\\end{logicproof}");
         s
     }
-    pub fn typst(&self) -> String {
-        String::new()
-    }
 }
 impl<T: Display + Clone> Display for FitchProof<T> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
