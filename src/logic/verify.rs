@@ -221,6 +221,17 @@ impl<T: Clone + Hash + Eq + Debug + Display> SubProof<T> {
                     ) {
                         *t = Some(Instruction::NotNotElim(a.index));
                     }
+                    // copy
+                    else if let Some((a, _)) = find_symbol(
+                        &Position {
+                            logic: *l.clone(),
+                            index: 0,
+                        },
+                        &None,
+                        &stack,
+                    ) {
+                        *t = Some(Instruction::Copy(a.index));
+                    }
                     // Impl elim
                     else if let Some((a, b)) = find_implication_elim(
                         &Position {
