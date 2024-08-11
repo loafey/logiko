@@ -80,13 +80,22 @@ fn MainApp() -> Element {
 
             div {
                 class: "result-line",
-                {result}
+                // {result}
             }
 
             div {
                 class: "sub-proof-outer",
                 {error}
 
+                div {
+                    class: "term-line-container",
+                    pre { class: "term-rule", style: "padding: 0 22px 0 32px;", "⊢" }
+                    div {
+                        class: "term-line",
+                        {result}
+                        div { class: "term-rule", "Result" }
+                    }
+                }
                 for (ind, l) in pres.into_iter().enumerate() {
                     div {
                         class: "term-line-container",
