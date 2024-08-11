@@ -149,6 +149,22 @@ struct StartTime(DateTime<Local>);
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct InfoScreen(Signal<bool>);
 
+#[derive(Debug, Clone, PartialEq, Eq, Copy)]
+#[allow(clippy::type_complexity)]
+struct UndoStack(Signal<Vec<(FitchProof<&'static str>, Option<Vec<usize>>)>>);
+impl UndoStack {
+    pub fn undo(&mut self) -> Option<(FitchProof<&'static str>, Option<Vec<usize>>)> {
+        self.0.write().pop()
+    }
+    pub fn push(&mut self, proof: FitchProof<&'static str>, index: Option<Vec<usize>>) {
+        let mut w = self.0.write();
+        w.push((proof, index));
+        if w.len() > 10 {
+            w.remove(0);
+        }
+    }
+}
+
 #[allow(unused)]
 fn app() -> Element {
     let GlobalProof(mut sig) = use_context_provider(|| GlobalProof(Signal::new(empty())));
@@ -163,6 +179,7 @@ fn app() -> Element {
     use_context_provider(|| StartTime(Local::now()));
     use_context_provider(|| InfoScreen(Signal::new(false)));
     use_context_provider(|| WonTime(Signal::new(None)));
+    use_context_provider(|| UndoStack(Signal::new(Vec::new())));
     let style = grass::include!("src/style.scss");
 
     rsx! {

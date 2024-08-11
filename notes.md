@@ -2,4 +2,3 @@
 * Allow user to copy a Typst version of their proof
 * Add cookies to avoid cheating.
 * Add more puzzles
-* Undo button

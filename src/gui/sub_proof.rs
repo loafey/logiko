@@ -1,6 +1,6 @@
 use crate::{
     logic::{Line, Logic, Ptr, SubProof},
-    GlobalProof, TermSelector,
+    GlobalProof, TermSelector, UndoStack,
 };
 use dioxus::prelude::*;
 
@@ -101,6 +101,7 @@ pub fn SubProofComp<T: 'static + PartialEq + std::fmt::Display + Clone>(
     let GlobalProof(mut proof) = use_context();
     let TermSelector(mut index_map_ref) = use_context();
     let SubProof(lines) = sub_proof;
+    let mut undo_stack = use_context::<UndoStack>();
     let lines = lines.into_iter().enumerate().map(|(i, line)| {
         let mut c = index_map.clone();
         c.push(i);
@@ -142,6 +143,7 @@ pub fn SubProofComp<T: 'static + PartialEq + std::fmt::Display + Clone>(
             ondoubleclick: {
                 let index_map = index_map.clone();
                 move |_| {
+                    undo_stack.push(proof.write().clone(), index_map_ref.write().clone());
                     proof.write().proof.remove_line(&index_map);
                     *index_map_ref.write() = None;
                 }
@@ -157,6 +159,7 @@ pub fn SubProofComp<T: 'static + PartialEq + std::fmt::Display + Clone>(
             onclick: {
                 let mut c = index_map.clone();
                 move |_| {
+                    undo_stack.push(proof.write().clone(), index_map_ref.write().clone());
                     let pos = proof.write().proof.recurse(&c, |s| {
                         let pos = s.0.len();
                         s.0.push(
