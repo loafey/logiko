@@ -135,20 +135,32 @@ body {
 
         span {
             filter: hue-rotate(300deg) contrast(100%) brightness(3);
-            animation: crabby 3s infinite;
+            animation: crabby 1s infinite;
         }
+
+        $frame-1: grayscale(0%) invert(0%) hue-rotate(220deg) contrast(100%) brightness(3);
+        $frame-2: grayscale(0%) invert(0%) hue-rotate(0deg) brightness(500%) brightness(1);
+        $frame-3: grayscale(100%) invert(100%) hue-rotate(0deg) contrast(0%) brightness(500%);
 
         @keyframes crabby {
             0% {
-                filter: hue-rotate(220deg) contrast(100%) brightness(3);
+                filter: $frame-1;
+            }
+
+            25% {
+                filter: $frame-2;
             }
 
             50% {
-                filter: hue-rotate(300deg) contrast(100%) brightness(3);
+                filter: $frame-3;
+            }
+
+            75% {
+                filter: $frame-2;
             }
 
             100% {
-                filter: hue-rotate(220deg) contrast(100%) brightness(3);
+                filter: $frame-1;
             }
         }
     }
