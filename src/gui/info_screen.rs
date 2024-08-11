@@ -241,7 +241,7 @@ pub fn GuiInfoScreen() -> Element {
                 }
                 Rule {
                     rule: "Copy",
-                    div { class: "q" }
+                    div { "q" }
                     div {
                         class: "result",
                         "q"
