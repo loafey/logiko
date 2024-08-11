@@ -239,6 +239,14 @@ pub fn GuiInfoScreen() -> Element {
                         "¬q ∨ q"
                     }
                 }
+                Rule {
+                    rule: "Copy",
+                    div { class: "q" }
+                    div {
+                        class: "result",
+                        "q"
+                    }
+                }
             }
         }
 
