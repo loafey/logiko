@@ -5,14 +5,18 @@ extern crate log;
 use chrono::{DateTime, Local};
 use dioxus::prelude::*;
 use gui::{GuiInfoScreen, Keyboard, SubProofComp, Term, WinScreen};
-mod logic;
-use logic::{empty, FitchProof};
+use logic_check::{empty, FitchProof};
 mod gui;
 mod util;
 
 fn main() {
-    dioxus_logger::init(dioxus_logger::tracing::Level::INFO).expect("failed to init logger");
-    launch(app);
+    #[cfg(not(target_arch = "wasm32"))]
+    {}
+    #[cfg(target_arch = "wasm32")]
+    {
+        dioxus_logger::init(dioxus_logger::tracing::Level::INFO).expect("failed to init logger");
+        launch(app);
+    }
 }
 
 #[component]
@@ -103,7 +107,7 @@ fn MainApp() -> Element {
                         div {
                             class: "term-line",
                             Term { term: Box::new(l), outer: true, index: Vec::new(), unselectable: true, other: false }
-                            div { class: "term-rule", "{logic::Instruction::Premise}" }
+                            div { class: "term-rule", "{logic_check::Instruction::Premise}" }
                         }
                     }
                 }

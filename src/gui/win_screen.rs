@@ -69,7 +69,7 @@ pub fn WinScreen(time: usize) -> Element {
                         div {
                             class: "term-line",
                             Term { term: Box::new(l), outer: true, index: Vec::new(), unselectable: true, other: false }
-                            div { class: "term-rule", "{crate::logic::Instruction::Premise}" }
+                            div { class: "term-rule", "{logic_check::Instruction::Premise}" }
                         }
                     }
                 }

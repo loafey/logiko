@@ -1,10 +1,10 @@
 use crate::{
-    logic::{Logic, SelectType},
-    util::Droppable,
-    ErrorField, GlobalProof, InfoScreen, StartTime, TermSelector, UndoStack, WonTime,
+    util::Droppable, ErrorField, GlobalProof, InfoScreen, StartTime, TermSelector, UndoStack,
+    WonTime,
 };
 use chrono::Local;
 use dioxus::prelude::*;
+use logic_check::{Logic, SelectType};
 use std::fmt::Write;
 
 macro_rules! update_term {

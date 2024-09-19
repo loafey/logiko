@@ -1,8 +1,6 @@
-use crate::{
-    logic::{Line, Logic, Ptr, SubProof},
-    GlobalProof, TermSelector, UndoStack,
-};
+use crate::{GlobalProof, TermSelector, UndoStack};
 use dioxus::prelude::*;
+use logic_check::{Line, Logic, Ptr, SubProof};
 
 #[component]
 pub fn Term<T: 'static + PartialEq + std::fmt::Display + Clone>(

@@ -262,6 +262,10 @@ impl<T> SubProof<T> {
             .sum()
     }
 
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
+
     pub fn recurse<R>(
         &mut self,
         index_map: &[usize],

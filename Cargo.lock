@@ -42,6 +42,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d301b3b94cb4b2f23d7917810addbbaff90738e0ca2be692bd027e70d7e0330c"
 
 [[package]]
+name = "ariadne"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "72fe02fc62033df9ba41cba57ee19acf5e742511a140c7dbc3a873e19a19a1bd"
+dependencies = [
+ "unicode-width",
+ "yansi",
+]
+
+[[package]]
 name = "async-channel"
 version = "2.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -202,6 +212,16 @@ dependencies = [
  "num-traits",
  "wasm-bindgen",
  "windows-targets",
+]
+
+[[package]]
+name = "chumsky"
+version = "0.9.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8eebd66744a15ded14960ab4ccdbfb51ad3b81f51f3f04a80adac98c985396c9"
+dependencies = [
+ "hashbrown 0.14.5",
+ "stacker",
 ]
 
 [[package]]
@@ -734,6 +754,24 @@ name = "fastrand"
 version = "2.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9fc0510504f03c51ada170672ac806f1f105a88aa97a5281117e1ddc3368e51a"
+
+[[package]]
+name = "fitch_core"
+version = "0.1.0"
+source = "git+https://github.com/adelhult/fitch/#7008366e5033b68946d7eb602accb41dd19ba536"
+dependencies = [
+ "thiserror",
+]
+
+[[package]]
+name = "fitch_syntax"
+version = "0.1.0"
+source = "git+https://github.com/adelhult/fitch/#7008366e5033b68946d7eb602accb41dd19ba536"
+dependencies = [
+ "ariadne",
+ "chumsky",
+ "fitch_core",
+]
 
 [[package]]
 name = "fixedbitset"
@@ -1339,12 +1377,21 @@ dependencies = [
  "dioxus",
  "dioxus-fullstack",
  "dioxus-logger",
+ "fitch_syntax",
  "grass",
- "itertools",
  "log",
+ "logic_check",
  "serde",
  "serde_json",
  "wasmtimer",
+]
+
+[[package]]
+name = "logic_check"
+version = "0.1.0"
+dependencies = [
+ "itertools",
+ "serde",
 ]
 
 [[package]]
@@ -1570,6 +1617,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5e719e8df665df0d1c8fbfd238015744736151d4445ec0836b8e628aae103b77"
 dependencies = [
  "unicode-ident",
+]
+
+[[package]]
+name = "psm"
+version = "0.1.23"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "aa37f80ca58604976033fae9515a8a2989fc13797d953f7c04fb8fa36a11f205"
+dependencies = [
+ "cc",
 ]
 
 [[package]]
@@ -1885,6 +1941,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "stacker"
+version = "0.1.15"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c886bd4480155fd3ef527d45e9ac8dd7118a898a46530b7b94c3e21866259fce"
+dependencies = [
+ "cc",
+ "cfg-if",
+ "libc",
+ "psm",
+ "winapi",
+]
+
+[[package]]
 name = "syn"
 version = "2.0.72"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2040,6 +2109,12 @@ name = "unicode-segmentation"
 version = "1.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d4c87d22b6e3f4a18d4d40ef354e97c90fcb14dd91d7dc0aa9d8a1172ebf7202"
+
+[[package]]
+name = "unicode-width"
+version = "0.1.13"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0336d538f7abc86d282a4189614dfaa90810dfc2c6f6427eaf88e16311dd225d"
 
 [[package]]
 name = "unicode-xid"
@@ -2285,6 +2360,12 @@ name = "xxhash-rust"
 version = "0.8.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6a5cbf750400958819fb6178eaa83bee5cd9c29a26a40cc241df8c70fdd46984"
+
+[[package]]
+name = "yansi"
+version = "0.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "09041cd90cf85f7f8b2df60c646f853b7f535ce68f85244eb6731cf89fa498ec"
 
 [[package]]
 name = "zerocopy"

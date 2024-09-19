@@ -1,5 +1,4 @@
 use super::{FitchProof, Instruction, Line, Logic, SubProof};
-use crate::util::Droppable;
 use itertools::Itertools;
 use std::{
     collections::HashMap,
@@ -342,10 +341,9 @@ impl<T: Clone + Hash + Eq + Debug + Display> SubProof<T> {
 impl<T: Clone + Hash + Eq + Debug + Display> FitchProof<T> {
     pub fn verify(&mut self) -> Result<bool, String> {
         let mut state = State::default();
-        self.prepositions
-            .iter()
-            .enumerate()
-            .for_each(|(i, l)| state.symbols.insert((l.clone(), None), (i + 1, 0)).drop());
+        self.prepositions.iter().enumerate().for_each(|(i, l)| {
+            state.symbols.insert((l.clone(), None), (i + 1, 0));
+        });
 
         self.proof
             .verify(&mut self.prepositions.len(), vec![state])?;

@@ -1,0 +1,12 @@
+[package]
+name = "logic_check"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+itertools = { workspace = true }
+serde = { workspace = true }
+
+[lib]
+path = "lib.rs"
+
